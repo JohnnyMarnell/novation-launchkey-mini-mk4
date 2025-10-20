@@ -1,0 +1,204 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#app {
+  text-align: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+h1 {
+  margin-bottom: 40px;
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ff006e, #8338ec);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#launchkey-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+/* Knobs */
+.knobs-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.knob-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.knob-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #8338ec;
+  letter-spacing: 1px;
+}
+
+.knob {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2e 100%);
+  border: 3px solid #8338ec;
+  position: relative;
+  cursor: ns-resize;
+  transition: box-shadow 0.2s;
+  user-select: none;
+}
+
+.knob:hover {
+  box-shadow: 0 0 20px rgba(131, 56, 236, 0.5);
+}
+
+.knob:active {
+  box-shadow: 0 0 30px rgba(131, 56, 236, 0.8);
+}
+
+.knob-indicator {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 3px;
+  height: 20px;
+  background: #ff006e;
+  transform-origin: center 25px;
+  transform: translateX(-50%) rotate(-135deg);
+  border-radius: 2px;
+  transition: transform 0.05s;
+}
+
+.knob-value {
+  font-size: 0.85rem;
+  color: #aaa;
+  font-weight: 500;
+  min-width: 30px;
+}
+
+/* Keyboard */
+.keyboard {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+  height: 200px;
+  position: relative;
+}
+
+.key {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.05s;
+  user-select: none;
+  border-radius: 0 0 4px 4px;
+}
+
+.white-key {
+  width: 40px;
+  height: 180px;
+  background: linear-gradient(180deg, #fff 0%, #e8e8e8 100%);
+  border: 2px solid #2a2a3e;
+  z-index: 1;
+}
+
+.white-key:hover {
+  background: linear-gradient(180deg, #f0f0f0 0%, #d8d8d8 100%);
+}
+
+.white-key.active {
+  background: linear-gradient(180deg, #8338ec 0%, #6020c0 100%);
+  box-shadow: 0 0 20px rgba(131, 56, 236, 0.8);
+  transform: translateY(2px);
+}
+
+.black-key {
+  width: 28px;
+  height: 110px;
+  background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2a 100%);
+  border: 2px solid #000;
+  margin-left: -15px;
+  margin-right: -15px;
+  z-index: 2;
+}
+
+.black-key:hover {
+  background: linear-gradient(180deg, #3a3a4e 0%, #2a2a3a 100%);
+}
+
+.black-key.active {
+  background: linear-gradient(180deg, #ff006e 0%, #d0005a 100%);
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
+  transform: translateY(2px);
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  #launchkey-container {
+    padding: 20px;
+  }
+
+  .knobs-container {
+    gap: 15px;
+  }
+
+  .knob {
+    width: 50px;
+    height: 50px;
+  }
+
+  .keyboard {
+    height: 150px;
+  }
+
+  .white-key {
+    width: 30px;
+    height: 130px;
+  }
+
+  .black-key {
+    width: 20px;
+    height: 80px;
+    margin-left: -11px;
+    margin-right: -11px;
+  }
+}
