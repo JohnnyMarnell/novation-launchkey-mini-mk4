@@ -14,6 +14,15 @@ dist-ssr
 dist-electron
 *.local
 
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
 # Electron build output
 release
 
