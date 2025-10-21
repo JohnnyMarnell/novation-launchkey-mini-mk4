@@ -9,6 +9,8 @@ export class Knobs {
   // CC numbers for the 8 knobs (standard mapping for Launchkey Mini)
   private readonly ccNumbers = [21, 22, 23, 24, 25, 26, 27, 28];
 
+  private knobChannel = 15
+
   constructor(container: HTMLElement, midiManager: MidiManager) {
     this.container = container;
     this.midiManager = midiManager;
@@ -50,7 +52,7 @@ export class Knobs {
         startY = clientY;
 
         this.updateKnob(knob, currentValue, valueDisplay);
-        this.midiManager.sendCC(this.ccNumbers[i], Math.round(currentValue));
+        this.midiManager.sendCC(this.ccNumbers[i], Math.round(currentValue), this.knobChannel);
         console.log(`Knob ${i + 1} (CC${this.ccNumbers[i]}): ${Math.round(currentValue)}`);
       };
 

@@ -116,7 +116,7 @@ h1 {
 .keyboard {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 2px;
   height: 200px;
   position: relative;
@@ -127,31 +127,31 @@ h1 {
   cursor: pointer;
   transition: all 0.05s;
   user-select: none;
-  border-radius: 0 0 4px 4px;
+  border-radius: 4px 4px 0 0;
 }
 
 .white-key {
   width: 40px;
   height: 180px;
-  background: linear-gradient(180deg, #fff 0%, #e8e8e8 100%);
+  background: linear-gradient(180deg, #e8e8e8 0%, #fff 100%);
   border: 2px solid #2a2a3e;
   z-index: 1;
 }
 
 .white-key:hover {
-  background: linear-gradient(180deg, #f0f0f0 0%, #d8d8d8 100%);
+  background: linear-gradient(180deg, #d8d8d8 0%, #f0f0f0 100%);
 }
 
 .white-key.active {
-  background: linear-gradient(180deg, #8338ec 0%, #6020c0 100%);
+  background: linear-gradient(180deg, #6020c0 0%, #8338ec 100%);
   box-shadow: 0 0 20px rgba(131, 56, 236, 0.8);
-  transform: translateY(2px);
+  transform: translateY(-2px);
 }
 
 .black-key {
   width: 28px;
   height: 110px;
-  background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2a 100%);
+  background: linear-gradient(180deg, #1a1a2a 0%, #2a2a3e 100%);
   border: 2px solid #000;
   margin-left: -15px;
   margin-right: -15px;
@@ -159,13 +159,13 @@ h1 {
 }
 
 .black-key:hover {
-  background: linear-gradient(180deg, #3a3a4e 0%, #2a2a3a 100%);
+  background: linear-gradient(180deg, #2a2a3a 0%, #3a3a4e 100%);
 }
 
 .black-key.active {
-  background: linear-gradient(180deg, #ff006e 0%, #d0005a 100%);
+  background: linear-gradient(180deg, #d0005a 0%, #ff006e 100%);
   box-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
-  transform: translateY(2px);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {

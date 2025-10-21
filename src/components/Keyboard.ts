@@ -1,3 +1,4 @@
+import { channel } from 'diagnostics_channel';
 import { MidiManager } from '../midi/MidiManager';
 
 export class Keyboard {
@@ -8,6 +9,8 @@ export class Keyboard {
   // Launchkey Mini MK4 has 25 keys (2 octaves starting from C)
   private readonly numKeys = 25;
   private readonly startNote = 48; // C3 (MIDI note 48)
+
+  private keyChannel = 8;
 
   constructor(container: HTMLElement, midiManager: MidiManager) {
     this.container = container;
@@ -55,7 +58,7 @@ export class Keyboard {
     const key = this.keys[keyIndex];
     if (key && !key.classList.contains('active')) {
       key.classList.add('active');
-      this.midiManager.sendNoteOn(note, 100);
+      this.midiManager.sendNoteOn(note, 100, this.keyChannel);
       console.log(`Note On: ${note}`);
     }
   }
@@ -65,7 +68,7 @@ export class Keyboard {
     const key = this.keys[keyIndex];
     if (key && key.classList.contains('active')) {
       key.classList.remove('active');
-      this.midiManager.sendNoteOff(note);
+      this.midiManager.sendNoteOff(note, this.keyChannel);
       console.log(`Note Off: ${note}`);
     }
   }

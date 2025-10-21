@@ -4,11 +4,17 @@ An Electron desktop application that simulates the Novation Launchkey Mini MK4 M
 
 ## What This Does
 
-This app creates **two virtual MIDI ports** that appear as real MIDI devices on your system:
-- **Launchkey Mini MK4 MIDI Out** - Sends MIDI messages when you interact with the GUI
+This app creates **four virtual MIDI ports** that appear as real MIDI devices on your system, matching the actual Launchkey Mini MK4 hardware:
+
+**Standard MIDI Ports:**
+- **Launchkey Mini MK4 MIDI Out** - Sends keyboard note messages
 - **Launchkey Mini MK4 MIDI In** - Receives MIDI messages (for future features)
 
-You can connect these virtual ports to your DAW (Ableton Live, Logic Pro, FL Studio, etc.) or any MIDI-compatible software, and the GUI will function as a MIDI controller.
+**DAW MIDI Ports:**
+- **Launchkey Mini MK4 DAW Out** - Sends knob control change messages
+- **Launchkey Mini MK4 DAW In** - Receives DAW feedback (for future features)
+
+You can connect these virtual ports to your DAW (Ableton Live, Logic Pro, FL Studio, etc.) or any MIDI-compatible software. The routing mimics the real hardware behavior where keyboard notes go to the standard MIDI port and knobs go to the DAW port.
 
 ## Requirements
 
@@ -39,10 +45,14 @@ This launches the app in an Electron window with:
 1. Open your DAW or MIDI software
 2. Go to MIDI settings/preferences
 3. Look for devices named:
-   - `Launchkey Mini MK4 MIDI Out`
+   - `Launchkey Mini MK4 MIDI Out` (for keyboard notes)
    - `Launchkey Mini MK4 MIDI In`
+   - `Launchkey Mini MK4 DAW Out` (for knob controls)
+   - `Launchkey Mini MK4 DAW In`
 4. Enable/connect these devices
 5. Interact with the GUI - your DAW should receive the MIDI messages!
+
+**Tip:** Most DAWs expect knob CC messages from the DAW port. If your knobs aren't working, make sure you've enabled the "DAW Out" port.
 
 ## Building the App
 
@@ -63,6 +73,7 @@ This creates an installer/package in the `release/` directory:
 - **Range**: C3 to C5 (MIDI notes 48-72)
 - **How to use**: Click or touch keys to play
 - **MIDI Output**: Note On (velocity 100) when pressed, Note Off when released
+- **MIDI Port**: Standard "MIDI Out" port
 - **Visual feedback**: Keys light up purple/pink when active
 
 ### Knobs (8 Rotary Controls)
@@ -70,6 +81,7 @@ This creates an installer/package in the `release/` directory:
 - **CC Numbers**: 21, 22, 23, 24, 25, 26, 27, 28 (one for each knob)
 - **Range**: 0-127
 - **How to use**: Click and drag vertically (up = increase, down = decrease)
+- **MIDI Port**: DAW "DAW Out" port (mimics real hardware behavior)
 - **Visual feedback**: Indicator line rotates, value displayed below knob
 
 ## Project Structure
@@ -115,7 +127,11 @@ novation-launchkey-mini-mk4/
 
 ### Virtual MIDI ports not appearing
 - Make sure the app is running (`yarn dev`)
-- Check the console output for "Virtual MIDI ports created" message
+- Check the console output - you should see all 4 ports listed:
+  - Launchkey Mini MK4 MIDI Out
+  - Launchkey Mini MK4 MIDI In
+  - Launchkey Mini MK4 DAW Out
+  - Launchkey Mini MK4 DAW In
 - On macOS: Check Audio MIDI Setup (Applications → Utilities)
 - On Windows: Use MIDI monitoring software to verify ports exist
 - On Linux: Use `aconnect -l` to list MIDI ports
@@ -127,8 +143,10 @@ novation-launchkey-mini-mk4/
 
 ### MIDI not working in DAW
 - Verify the virtual ports are enabled in your DAW's MIDI settings
+- For keyboard notes: Enable "Launchkey Mini MK4 MIDI Out"
+- For knobs: Enable "Launchkey Mini MK4 DAW Out"
 - Try restarting your DAW after launching this app
-- Check that you're listening to the correct port (usually "MIDI Out")
+- Some DAWs have separate track input vs control surface settings - check both
 
 ## License
 
