@@ -1,6 +1,7 @@
 import MidiInterface from './MidiInterface';
 import { Keyboard } from './components/Keyboard';
 import { Knobs } from './components/Knobs';
+import { OledScreen } from './components/OledScreen';
 import './style.css';
 
 class App {
@@ -18,6 +19,11 @@ class App {
       throw new Error('Container not found');
     }
 
+    // Create OLED screen section
+    const oledSection = document.createElement('div');
+    oledSection.className = 'section oled-section';
+    container.appendChild(oledSection);
+
     // Create knobs section
     const knobsSection = document.createElement('div');
     knobsSection.className = 'section';
@@ -29,8 +35,14 @@ class App {
     container.appendChild(keyboardSection);
 
     // Initialize components
+    const oled = new OledScreen(oledSection);
     new Knobs(knobsSection, this.midi);
     new Keyboard(keyboardSection, this.midi);
+
+    // Wire up OLED updates
+    this.midi.onOledUpdate((lines, isPersistent) => {
+      oled.updateDisplay(lines, isPersistent);
+    });
 
     console.log('Launchkey Mini MK4 GUI ready!');
   }

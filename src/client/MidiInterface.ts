@@ -1,6 +1,7 @@
 class MidiInterface {
   private ws: WebSocket | null = null;
   private reconnectDelay = 1000;
+  private oledCallback: ((lines: string[], isPersistent: boolean) => void) | null = null;
 
   constructor() {
     this.connect();
@@ -22,6 +23,17 @@ class MidiInterface {
       this.reconnectDelay = 1000;
     };
 
+    this.ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'oled-update' && this.oledCallback) {
+          this.oledCallback(data.lines, data.isPersistent || false);
+        }
+      } catch (error) {
+        console.error('[MIDI] Error parsing message:', error);
+      }
+    };
+
     this.ws.onclose = () => {
       console.log('[MIDI] Disconnected, reconnecting...');
       setTimeout(() => this.connect(), this.reconnectDelay);
@@ -31,6 +43,10 @@ class MidiInterface {
     this.ws.onerror = () => {
       console.error('[MIDI] WebSocket error');
     };
+  }
+
+  onOledUpdate(callback: (lines: string[], isPersistent: boolean) => void) {
+    this.oledCallback = callback;
   }
 
   private send(message: any) {
