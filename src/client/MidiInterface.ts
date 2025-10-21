@@ -8,8 +8,13 @@ class MidiInterface {
 
   private connect() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    // In development (port 5173), connect to server on port 3000
+    // In production, connect to same host
+    const isDev = window.location.port === '5173';
+    const host = isDev ? `${window.location.hostname}:3000` : window.location.host;
+    const wsUrl = `${protocol}//${host}`;
 
+    console.log(`[MIDI] Connecting to ${wsUrl}`);
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {

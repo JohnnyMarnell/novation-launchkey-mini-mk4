@@ -11,10 +11,15 @@ export class Keyboard {
 
   private keyChannel = 8;
 
+  // Drag state
+  private isDragging = false;
+  private currentNote: number | null = null;
+
   constructor(container: HTMLElement, midi: MidiInterface) {
     this.container = container;
     this.midi = midi;
     this.createKeyboard();
+    this.setupGlobalListeners();
   }
 
   private createKeyboard() {
@@ -30,12 +35,19 @@ export class Keyboard {
       const isBlackKey = [1, 3, 6, 8, 10].includes(noteInOctave);
       keyDiv.className = isBlackKey ? 'key black-key' : 'key white-key';
 
-      // Add event listeners
-      keyDiv.addEventListener('mousedown', () => this.handleNoteOn(note));
-      keyDiv.addEventListener('mouseup', () => this.handleNoteOff(note));
-      keyDiv.addEventListener('mouseleave', () => this.handleNoteOff(note));
+      // Mouse event listeners for drag support
+      keyDiv.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        this.startDrag(note);
+      });
 
-      // Touch support
+      keyDiv.addEventListener('mouseenter', () => {
+        if (this.isDragging) {
+          this.switchToNote(note);
+        }
+      });
+
+      // Touch support (separate from drag)
       keyDiv.addEventListener('touchstart', (e) => {
         e.preventDefault();
         this.handleNoteOn(note);
@@ -50,6 +62,40 @@ export class Keyboard {
     }
 
     this.container.appendChild(keyboardDiv);
+  }
+
+  private setupGlobalListeners() {
+    document.addEventListener('mouseup', () => {
+      if (this.isDragging) {
+        this.stopDrag();
+      }
+    });
+  }
+
+  private startDrag(note: number) {
+    this.isDragging = true;
+    this.switchToNote(note);
+  }
+
+  private switchToNote(note: number) {
+    if (this.currentNote === note) return;
+
+    // Turn off previous note
+    if (this.currentNote !== null) {
+      this.handleNoteOff(this.currentNote);
+    }
+
+    // Turn on new note
+    this.currentNote = note;
+    this.handleNoteOn(note);
+  }
+
+  private stopDrag() {
+    this.isDragging = false;
+    if (this.currentNote !== null) {
+      this.handleNoteOff(this.currentNote);
+      this.currentNote = null;
+    }
   }
 
   private handleNoteOn(note: number) {
