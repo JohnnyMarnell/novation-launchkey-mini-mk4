@@ -1,16 +1,16 @@
-import { MidiManager } from './midi/MidiManager';
+import MidiInterface from './MidiInterface';
 import { Keyboard } from './components/Keyboard';
 import { Knobs } from './components/Knobs';
 import './style.css';
 
 class App {
-  private midiManager: MidiManager;
+  private midi: MidiInterface;
 
   constructor() {
     console.log('Initializing Launchkey Mini MK4 GUI...');
 
     // Initialize MIDI
-    this.midiManager = new MidiManager();
+    this.midi = new MidiInterface();
 
     // Get container
     const container = document.getElementById('launchkey-container');
@@ -29,8 +29,8 @@ class App {
     container.appendChild(keyboardSection);
 
     // Initialize components
-    new Knobs(knobsSection, this.midiManager);
-    new Keyboard(keyboardSection, this.midiManager);
+    new Knobs(knobsSection, this.midi);
+    new Keyboard(keyboardSection, this.midi);
 
     console.log('Launchkey Mini MK4 GUI ready!');
   }

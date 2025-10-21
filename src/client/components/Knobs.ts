@@ -1,8 +1,8 @@
-import { MidiManager } from '../midi/MidiManager';
+import MidiInterface from '../MidiInterface';
 
 export class Knobs {
   private container: HTMLElement;
-  private midiManager: MidiManager;
+  private midi: MidiInterface;
 
   // Launchkey Mini MK4 has 8 knobs
   private readonly numKnobs = 8;
@@ -11,9 +11,9 @@ export class Knobs {
 
   private knobChannel = 15
 
-  constructor(container: HTMLElement, midiManager: MidiManager) {
+  constructor(container: HTMLElement, midi: MidiInterface) {
     this.container = container;
-    this.midiManager = midiManager;
+    this.midi = midi;
     this.createKnobs();
   }
 
@@ -52,7 +52,7 @@ export class Knobs {
         startY = clientY;
 
         this.updateKnob(knob, currentValue, valueDisplay);
-        this.midiManager.sendCC(this.ccNumbers[i], Math.round(currentValue), this.knobChannel);
+        this.midi.sendCC(this.ccNumbers[i], Math.round(currentValue), this.knobChannel);
         console.log(`Knob ${i + 1} (CC${this.ccNumbers[i]}): ${Math.round(currentValue)}`);
       };
 
