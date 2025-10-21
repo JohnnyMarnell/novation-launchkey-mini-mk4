@@ -56,6 +56,7 @@ class MidiHandler {
           if (message.note !== undefined && message.velocity !== undefined) {
             const status = 0x90 | message.channel;
             this.midiOut.sendMessage([status, message.note, message.velocity]);
+            console.log(`[MIDI] Note On  → Note: ${message.note}, Velocity: ${message.velocity}, Channel: ${message.channel}`);
           }
           break;
 
@@ -63,6 +64,7 @@ class MidiHandler {
           if (message.note !== undefined) {
             const status = 0x80 | message.channel;
             this.midiOut.sendMessage([status, message.note, 0]);
+            console.log(`[MIDI] Note Off → Note: ${message.note}, Channel: ${message.channel}`);
           }
           break;
 
@@ -70,6 +72,7 @@ class MidiHandler {
           if (message.ccNumber !== undefined && message.value !== undefined) {
             const status = 0xB0 | message.channel;
             this.dawOut.sendMessage([status, message.ccNumber, message.value]);
+            console.log(`[MIDI] CC (DAW) → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
           }
           break;
 
@@ -77,6 +80,7 @@ class MidiHandler {
           if (message.ccNumber !== undefined && message.value !== undefined) {
             const status = 0xB0 | message.channel;
             this.midiOut.sendMessage([status, message.ccNumber, message.value]);
+            console.log(`[MIDI] CC (Std) → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
           }
           break;
 

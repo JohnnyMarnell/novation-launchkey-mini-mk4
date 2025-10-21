@@ -24,7 +24,7 @@ app.get('/api/health', (c) => {
 // Fallback to index.html for SPA routing
 app.get('*', (c) => {
   try {
-    const indexPath = resolve(__dirname, '../dist/index.html');
+    const indexPath = resolve(__dirname, '../../dist/index.html');
     const html = readFileSync(indexPath, 'utf-8');
     return c.html(html);
   } catch (error) {
