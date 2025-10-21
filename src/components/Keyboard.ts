@@ -1,4 +1,3 @@
-import { channel } from 'diagnostics_channel';
 import { MidiManager } from '../midi/MidiManager';
 
 export class Keyboard {
