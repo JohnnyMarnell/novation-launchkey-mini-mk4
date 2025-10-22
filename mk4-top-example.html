@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novation Launchkey Mini MK4</title>
+</head>
+<body>
+    <div class="keyboard-container">
+        <!-- Column 1: Pitch/Mod Wheels -->
+        <div class="wheels-section">
+            <div class="wheel">
+                <div class="wheel-pad"></div>
+                <span class="label">Pitch</span>
+            </div>
+            <div class="wheel">
+                <div class="wheel-pad"></div>
+                <span class="label">Modulation</span>
+            </div>
+        </div>
+
+        <!-- Column 2: OLED Display Area -->
+        <div class="display-area">
+            <div class="oled-screen">
+                <div class="display-content">
+                    <span class="mode-text">C Minor</span>
+                    <div class="keyboard-icon">🎹</div>
+                </div>
+            </div>
+            <button class="btn-small">Shift</button>
+            <button class="btn-small">Settings</button>
+            <button class="btn-icon btn-play">▶</button>
+            <button class="btn-icon btn-record">⬤</button>
+            <button class="btn-small">Oct -</button>
+            <button class="btn-small">Oct +</button>
+        </div>
+
+        <!-- Column 3: Arp/Scale/"< Pitch" Buttons -->
+        <div class="mode-buttons">
+            <button class="btn-mode">Arp</button>
+            <button class="btn-mode">Scale</button>
+            <button class="nav-btn">▲</button>
+            <button class="nav-btn">▼</button>
+        </div>
+
+        <!-- Column 4: Knobs + Pads -->
+        <div class="main-content">
+            <!-- Knobs -->
+            <div class="knobs-section">
+                <div class="knob-group">
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Plug-in</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Mixer</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Sends</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Transport</span>
+                    </div>
+                    <div class="encoder-label">Encoder Mode</div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Custom 1</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Custom 2</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Custom 3</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">Custom 4</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pads -->
+            <div class="pads-grid">
+                <!-- Row 1 -->
+                <button class="pad pad-pink">
+                    <span class="pad-label">Plug-in</span>
+                </button>
+                <button class="pad pad-lavender">
+                    <span class="pad-label">Mixer</span>
+                </button>
+                <button class="pad pad-blue">
+                    <span class="pad-label">Sends</span>
+                </button>
+                <button class="pad pad-lightblue">
+                    <span class="pad-label">Transport</span>
+                </button>
+                <button class="pad pad-cyan">
+                    <span class="pad-label">Custom 1</span>
+                </button>
+                <button class="pad pad-cyan">
+                    <span class="pad-label">Custom 2</span>
+                </button>
+                <button class="pad pad-cyan">
+                    <span class="pad-label">Custom 3</span>
+                </button>
+                <button class="pad pad-green">
+                    <span class="pad-label">Custom 4</span>
+                </button>
+
+                <!-- Row 2 -->
+                <button class="pad pad-pink">
+                    <span class="pad-label">DAW</span>
+                </button>
+                <button class="pad pad-lavender">
+                    <span class="pad-label">Drum</span>
+                </button>
+                <button class="pad pad-blue">
+                    <span class="pad-label">User Chord</span>
+                </button>
+                <button class="pad pad-lightblue">
+                    <span class="pad-label">Chord Map</span>
+                </button>
+                <button class="pad pad-cyan">
+                    <span class="pad-label">Custom 1</span>
+                </button>
+                <button class="pad pad-cyan">
+                    <span class="pad-label">Custom 2</span>
+                </button>
+                <button class="pad pad-cyan">
+                    <span class="pad-label">Custom 3</span>
+                </button>
+                <button class="pad pad-green">
+                    <span class="pad-label">Custom 4</span>
+                </button>
+
+                <div class="pad-mode-label">Pad Mode</div>
+            </div>
+        </div>
+
+        <!-- Column 5: Right Navigation -->
+        <div class="right-nav">
+            <button class="nav-btn">▲</button>
+            <button class="nav-btn">▼</button>
+            <button class="nav-btn">▶</button>
+            <button class="nav-btn func-btn">Func</button>
+        </div>
+
+        <!-- Branding -->
+        <div class="branding">LAUNCHKEY</div>
+    </div>
+
+<style>
+:root {
+    --bg-dark: #1a1a1a;
+    --bg-medium: #2a2a2a;
+    --bg-light: #3a3a3a;
+    --text-light: #cccccc;
+    --text-dim: #888888;
+    --pad-pink: #ff69b4;
+    --pad-lavender: #b19cd9;
+    --pad-blue: #6495ed;
+    --pad-lightblue: #87ceeb;
+    --pad-cyan: #00ced1;
+    --pad-green: #7fff00;
+    --btn-play: #00ff00;
+    --btn-record: #ff1744;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    padding: 1rem;
+}
+
+.keyboard-container {
+    background: var(--bg-dark);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    max-width: 1600px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    display: grid;
+    grid-template-columns: auto auto auto 1fr auto;
+    grid-template-rows: 1fr auto;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+/* Column 1: Pitch + Mod Wheels */
+.wheels-section {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+/* Column 2: OLED + Buttons */
+.display-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 0.4rem;
+    align-content: start;
+}
+
+/* Column 3: Arp/Scale/"< Pitch" buttons */
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: flex-start;
+}
+
+/* Column 4: Main Content (Knobs + Pads) */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+/* Column 5: Right Navigation */
+.right-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    justify-content: space-between;
+}
+
+.wheel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.wheel-pad {
+    width: 50px;
+    flex: 1;
+    background: var(--bg-light);
+    border: 2px solid var(--bg-medium);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.wheel-pad:hover {
+    background: #4a4a4a;
+}
+
+/* Display Area */
+.display-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.4rem;
+    align-content: start;
+}
+
+.oled-screen {
+    background: #000;
+    border: 3px solid var(--bg-medium);
+    border-radius: 8px;
+    padding: 0.75rem;
+    height: auto;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / -1;
+}
+
+.display-content {
+    color: #fff;
+    text-align: center;
+}
+
+.mode-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.keyboard-icon {
+    font-size: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.btn-small, .btn-icon {
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-light);
+    border: none;
+    color: var(--text-light);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-small:hover, .btn-icon:hover {
+    background: #4a4a4a;
+    transform: translateY(-1px);
+}
+
+.btn-play {
+    background: #2a4a2a;
+    color: var(--btn-play);
+    font-size: 0.9rem;
+}
+
+.btn-record {
+    background: #4a2a2a;
+    color: var(--btn-record);
+    font-size: 0.9rem;
+}
+
+/* Mode Buttons */
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn-mode {
+    padding: 0.6rem 1.2rem;
+    background: var(--bg-light);
+    border: none;
+    color: var(--text-light);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-mode:hover {
+    background: #4a4a4a;
+    transform: translateY(-1px);
+}
+
+.knobs-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.knob-group {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.75rem;
+    position: relative;
+}
+
+.encoder-label {
+    position: absolute;
+    top: -1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-dim);
+    font-size: 0.65rem;
+    white-space: nowrap;
+}
+
+.knob {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.knob-visual {
+    width: 45px;
+    height: 45px;
+    background: radial-gradient(circle at 30% 30%, #555, #222);
+    border-radius: 50%;
+    border: 3px solid var(--bg-medium);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.knob-visual:hover {
+    transform: scale(1.1);
+}
+
+.knob-visual::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 12px;
+    background: var(--text-light);
+    border-radius: 2px;
+}
+
+.label {
+    color: var(--text-dim);
+    font-size: 0.65rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.pads-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.4rem;
+    position: relative;
+}
+
+.pad-mode-label {
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.pad-mode-label::before,
+.pad-mode-label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 200px;
+    height: 1px;
+    background: var(--bg-medium);
+}
+
+.pad-mode-label::before {
+    right: 100%;
+    margin-right: 1rem;
+}
+
+.pad-mode-label::after {
+    left: 100%;
+    margin-left: 1rem;
+}
+
+.pad {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    font-size: 0.7rem;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: 600;
+}
+
+.pad:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+}
+
+.pad:active {
+    transform: scale(0.95);
+}
+
+.pad-label {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    text-align: center;
+    font-size: 0.65rem;
+}
+
+.pad-pink { background: var(--pad-pink); }
+.pad-lavender { background: var(--pad-lavender); }
+.pad-blue { background: var(--pad-blue); }
+.pad-lightblue { background: var(--pad-lightblue); }
+.pad-cyan { background: var(--pad-cyan); }
+.pad-green { background: var(--pad-green); }
+
+.nav-btn {
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-light);
+    border: none;
+    color: var(--text-light);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.nav-btn:hover {
+    background: #4a4a4a;
+    transform: translateY(-1px);
+}
+
+.func-btn {
+    margin-top: auto;
+}
+
+/* Branding */
+.branding {
+    color: var(--text-dim);
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 0.3em;
+    text-align: left;
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+}
+
+/* Scaling - maintains layout, just scales proportionally */
+@media (max-width: 1200px) {
+    .keyboard-container {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .keyboard-container {
+        font-size: 0.75rem;
+    }
+
+    .knob-visual {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 600px) {
+    .keyboard-container {
+        font-size: 0.6rem;
+        padding: 1rem;
+    }
+
+    .knob-visual {
+        width: 35px;
+        height: 35px;
+    }
+}
+</style>
+</body>
+</html>
