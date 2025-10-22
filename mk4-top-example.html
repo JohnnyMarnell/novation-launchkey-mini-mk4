@@ -50,36 +50,35 @@
                 <div class="knob-group">
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Plug-in</span>
+                        <span class="label">K1</span>
                     </div>
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Mixer</span>
+                        <span class="label">K2</span>
                     </div>
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Sends</span>
+                        <span class="label">K3</span>
                     </div>
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Transport</span>
-                    </div>
-                    <div class="encoder-label">Encoder Mode</div>
-                    <div class="knob">
-                        <div class="knob-visual"></div>
-                        <span class="label">Custom 1</span>
+                        <span class="label">K4</span>
                     </div>
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Custom 2</span>
+                        <span class="label">K5 1</span>
                     </div>
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Custom 3</span>
+                        <span class="label">K6</span>
                     </div>
                     <div class="knob">
                         <div class="knob-visual"></div>
-                        <span class="label">Custom 4</span>
+                        <span class="label">K7</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-visual"></div>
+                        <span class="label">K8</span>
                     </div>
                 </div>
             </div>
@@ -87,58 +86,56 @@
             <!-- Pads -->
             <div class="pads-grid">
                 <!-- Row 1 -->
-                <button class="pad pad-pink">
+                <button class="pad">
                     <span class="pad-label">Plug-in</span>
                 </button>
-                <button class="pad pad-lavender">
+                <button class="pad">
                     <span class="pad-label">Mixer</span>
                 </button>
-                <button class="pad pad-blue">
+                <button class="pad">
                     <span class="pad-label">Sends</span>
                 </button>
-                <button class="pad pad-lightblue">
+                <button class="pad">
                     <span class="pad-label">Transport</span>
                 </button>
-                <button class="pad pad-cyan">
+                <button class="pad">
                     <span class="pad-label">Custom 1</span>
                 </button>
-                <button class="pad pad-cyan">
+                <button class="pad">
                     <span class="pad-label">Custom 2</span>
                 </button>
-                <button class="pad pad-cyan">
+                <button class="pad">
                     <span class="pad-label">Custom 3</span>
                 </button>
-                <button class="pad pad-green">
+                <button class="pad">
                     <span class="pad-label">Custom 4</span>
                 </button>
 
                 <!-- Row 2 -->
-                <button class="pad pad-pink">
+                <button class="pad">
                     <span class="pad-label">DAW</span>
                 </button>
-                <button class="pad pad-lavender">
+                <button class="pad">
                     <span class="pad-label">Drum</span>
                 </button>
-                <button class="pad pad-blue">
+                <button class="pad">
                     <span class="pad-label">User Chord</span>
                 </button>
-                <button class="pad pad-lightblue">
+                <button class="pad">
                     <span class="pad-label">Chord Map</span>
                 </button>
-                <button class="pad pad-cyan">
+                <button class="pad">
                     <span class="pad-label">Custom 1</span>
                 </button>
-                <button class="pad pad-cyan">
+                <button class="pad">
                     <span class="pad-label">Custom 2</span>
                 </button>
-                <button class="pad pad-cyan">
+                <button class="pad">
                     <span class="pad-label">Custom 3</span>
                 </button>
-                <button class="pad pad-green">
+                <button class="pad">
                     <span class="pad-label">Custom 4</span>
                 </button>
-
-                <div class="pad-mode-label">Pad Mode</div>
             </div>
         </div>
 
@@ -147,7 +144,7 @@
             <button class="nav-btn">▲</button>
             <button class="nav-btn">▼</button>
             <button class="nav-btn">▶</button>
-            <button class="nav-btn func-btn">Func</button>
+            <button class="nav-btn">Func</button>
         </div>
 
         <!-- Branding -->
@@ -161,12 +158,7 @@
     --bg-light: #3a3a3a;
     --text-light: #cccccc;
     --text-dim: #888888;
-    --pad-pink: #ff69b4;
-    --pad-lavender: #b19cd9;
-    --pad-blue: #6495ed;
-    --pad-lightblue: #87ceeb;
     --pad-cyan: #00ced1;
-    --pad-green: #7fff00;
     --btn-play: #00ff00;
     --btn-record: #ff1744;
 }
@@ -199,6 +191,7 @@ body {
     grid-template-rows: 1fr auto;
     gap: 1rem;
     align-items: stretch;
+    min-height: 400px;
 }
 
 /* Column 1: Pitch + Mod Wheels */
@@ -314,8 +307,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 0;
-    height: 100%;
 }
 
 .btn-small:hover, .btn-icon:hover {
@@ -468,6 +459,7 @@ body {
     position: relative;
     transition: all 0.2s;
     font-size: 0.7rem;
+    background-color: var(--pad-cyan);
     color: rgba(0, 0, 0, 0.6);
     font-weight: 600;
 }
@@ -489,13 +481,6 @@ body {
     text-align: center;
     font-size: 0.65rem;
 }
-
-.pad-pink { background: var(--pad-pink); }
-.pad-lavender { background: var(--pad-lavender); }
-.pad-blue { background: var(--pad-blue); }
-.pad-lightblue { background: var(--pad-lightblue); }
-.pad-cyan { background: var(--pad-cyan); }
-.pad-green { background: var(--pad-green); }
 
 .nav-btn {
     flex: 1;
