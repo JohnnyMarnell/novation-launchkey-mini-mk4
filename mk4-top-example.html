@@ -27,20 +27,20 @@
                     <div class="keyboard-icon">🎹</div>
                 </div>
             </div>
-            <button class="btn-small">Shift</button>
-            <button class="btn-small">Settings</button>
-            <button class="btn-icon btn-play">▶</button>
-            <button class="btn-icon btn-record">⬤</button>
-            <button class="btn-small">Oct -</button>
-            <button class="btn-small">Oct +</button>
+            <button class="btn btn-small">Shift</button>
+            <button class="btn btn-small">Settings</button>
+            <button class="btn btn-icon btn-play">▶</button>
+            <button class="btn btn-icon btn-record">⬤</button>
+            <button class="btn btn-small">Oct -</button>
+            <button class="btn btn-small">Oct +</button>
         </div>
 
         <!-- Column 3: Arp/Scale/"< Pitch" Buttons -->
         <div class="mode-buttons">
-            <button class="btn-mode">Arp</button>
-            <button class="btn-mode">Scale</button>
-            <button class="nav-btn">▲</button>
-            <button class="nav-btn">▼</button>
+            <button class="btn btn-mode">Arp</button>
+            <button class="btn btn-mode">Scale</button>
+            <button class="btn nav-btn">▲</button>
+            <button class="btn nav-btn">▼</button>
         </div>
 
         <!-- Column 4: Knobs + Pads -->
@@ -141,10 +141,10 @@
 
         <!-- Column 5: Right Navigation -->
         <div class="right-nav">
-            <button class="nav-btn">▲</button>
-            <button class="nav-btn">▼</button>
-            <button class="nav-btn">▶</button>
-            <button class="nav-btn">Func</button>
+            <button class="btn nav-btn">▲</button>
+            <button class="btn nav-btn">▼</button>
+            <button class="btn nav-btn">▶</button>
+            <button class="btn nav-btn">Func</button>
         </div>
 
         <!-- Branding -->
@@ -194,15 +194,21 @@ body {
     min-height: 400px;
 }
 
-/* Column 1: Pitch + Mod Wheels */
-.wheels-section {
+/* Flex columns with full height */
+.wheels-section,
+.mode-buttons,
+.right-nav {
     display: flex;
-    flex-direction: row;
-    gap: 0.75rem;
-    align-items: stretch;
+    flex-direction: column;
+    gap: 0.4rem;
+    height: 100%;
 }
 
-/* Column 2: OLED + Buttons */
+.wheels-section {
+    flex-direction: row;
+    gap: 0.75rem;
+}
+
 .display-area {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -212,15 +218,6 @@ body {
     align-items: stretch;
 }
 
-/* Column 3: Arp/Scale/"< Pitch" buttons */
-.mode-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    height: 100%;
-}
-
-/* Column 4: Main Content (Knobs + Pads) */
 .main-content {
     display: flex;
     flex-direction: column;
@@ -228,12 +225,51 @@ body {
     justify-content: space-between;
 }
 
-/* Column 5: Right Navigation */
-.right-nav {
+/* Base button styles */
+.btn {
+    padding: 0.5rem;
+    background: var(--bg-light);
+    border: none;
+    color: var(--text-light);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
     display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    height: 100%;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.btn:hover,
+.wheel-pad:hover {
+    background: #4a4a4a;
+}
+
+.btn-small,
+.btn-icon {
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
+
+.btn-mode,
+.nav-btn {
+    flex: 1;
+    font-size: 0.85rem;
+    min-height: 0;
+}
+
+.nav-btn {
+    font-size: 0.75rem;
+}
+
+.btn-play {
+    background: #2a4a2a;
+    color: var(--btn-play);
+}
+
+.btn-record {
+    background: #4a2a2a;
+    color: var(--btn-record);
 }
 
 .wheel {
@@ -254,25 +290,11 @@ body {
     transition: background 0.2s;
 }
 
-.wheel-pad:hover {
-    background: #4a4a4a;
-}
-
-/* Display Area */
-.display-area {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 0.4rem;
-    align-content: start;
-}
-
 .oled-screen {
     background: #000;
     border: 3px solid var(--bg-medium);
     border-radius: 8px;
     padding: 0.75rem;
-    height: auto;
     min-height: 60px;
     display: flex;
     align-items: center;
@@ -295,82 +317,20 @@ body {
     margin-top: 0.25rem;
 }
 
-.btn-small, .btn-icon {
-    padding: 0.5rem;
-    background: var(--bg-light);
-    border: none;
-    color: var(--text-light);
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-small:hover, .btn-icon:hover {
-    background: #4a4a4a;
-}
-
-.btn-play {
-    background: #2a4a2a;
-    color: var(--btn-play);
-}
-
-.btn-record {
-    background: #4a2a2a;
-    color: var(--btn-record);
-}
-
-/* Mode Buttons */
-.mode-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.btn-mode {
-    flex: 1;
-    padding: 0.5rem;
-    background: var(--bg-light);
-    border: none;
-    color: var(--text-light);
-    border-radius: 6px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-}
-
-.btn-mode:hover {
-    background: #4a4a4a;
-}
-
-.knobs-section {
-    display: flex;
-    flex-direction: column;
-}
-
-.knob-group {
+/* 8-column grids */
+.knob-group,
+.pads-grid {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    gap: 0.75rem;
     position: relative;
 }
 
-.encoder-label {
-    position: absolute;
-    top: -1.2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--text-dim);
-    font-size: 0.65rem;
-    white-space: nowrap;
+.knob-group {
+    gap: 0.75rem;
+}
+
+.pads-grid {
+    gap: 0.4rem;
 }
 
 .knob {
@@ -407,28 +367,30 @@ body {
     border-radius: 2px;
 }
 
-.label {
+/* Labels */
+.label,
+.encoder-label,
+.pad-mode-label {
     color: var(--text-dim);
     font-size: 0.65rem;
     text-align: center;
     white-space: nowrap;
 }
 
-.pads-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 0.4rem;
-    position: relative;
+.encoder-label,
+.pad-mode-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.encoder-label {
+    top: -1.2rem;
 }
 
 .pad-mode-label {
-    position: absolute;
     bottom: -2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--text-dim);
     font-size: 0.85rem;
-    white-space: nowrap;
 }
 
 .pad-mode-label::before,
@@ -458,8 +420,7 @@ body {
     cursor: pointer;
     position: relative;
     transition: all 0.2s;
-    font-size: 0.7rem;
-    background-color: var(--pad-cyan);
+    background: var(--pad-cyan);
     color: rgba(0, 0, 0, 0.6);
     font-weight: 600;
 }
@@ -480,27 +441,6 @@ body {
     right: 0.5rem;
     text-align: center;
     font-size: 0.65rem;
-}
-
-.nav-btn {
-    flex: 1;
-    padding: 0.5rem;
-    background: var(--bg-light);
-    border: none;
-    color: var(--text-light);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-}
-
-.nav-btn:hover {
-    background: #4a4a4a;
 }
 
 /* Branding */
