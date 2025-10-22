@@ -213,17 +213,18 @@ body {
 .display-area {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto 1fr 1fr 1fr;
     gap: 0.4rem;
-    align-content: start;
+    height: 100%;
+    align-items: stretch;
 }
 
 /* Column 3: Arp/Scale/"< Pitch" buttons */
 .mode-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    justify-content: flex-start;
+    gap: 0.4rem;
+    height: 100%;
 }
 
 /* Column 4: Main Content (Knobs + Pads) */
@@ -239,7 +240,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    justify-content: space-between;
+    height: 100%;
 }
 
 .wheel {
@@ -302,31 +303,33 @@ body {
 }
 
 .btn-small, .btn-icon {
-    padding: 0.4rem 0.6rem;
+    padding: 0.5rem;
     background: var(--bg-light);
     border: none;
     color: var(--text-light);
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    height: 100%;
 }
 
 .btn-small:hover, .btn-icon:hover {
     background: #4a4a4a;
-    transform: translateY(-1px);
 }
 
 .btn-play {
     background: #2a4a2a;
     color: var(--btn-play);
-    font-size: 0.9rem;
 }
 
 .btn-record {
     background: #4a2a2a;
     color: var(--btn-record);
-    font-size: 0.9rem;
 }
 
 /* Mode Buttons */
@@ -337,7 +340,8 @@ body {
 }
 
 .btn-mode {
-    padding: 0.6rem 1.2rem;
+    flex: 1;
+    padding: 0.5rem;
     background: var(--bg-light);
     border: none;
     color: var(--text-light);
@@ -346,11 +350,14 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
 }
 
 .btn-mode:hover {
     background: #4a4a4a;
-    transform: translateY(-1px);
 }
 
 .knobs-section {
@@ -491,7 +498,8 @@ body {
 .pad-green { background: var(--pad-green); }
 
 .nav-btn {
-    padding: 0.5rem 0.75rem;
+    flex: 1;
+    padding: 0.5rem;
     background: var(--bg-light);
     border: none;
     color: var(--text-light);
@@ -500,15 +508,14 @@ body {
     transition: all 0.2s;
     font-size: 0.75rem;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
 }
 
 .nav-btn:hover {
     background: #4a4a4a;
-    transform: translateY(-1px);
-}
-
-.func-btn {
-    margin-top: auto;
 }
 
 /* Branding */
