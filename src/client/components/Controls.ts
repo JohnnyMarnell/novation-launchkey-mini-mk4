@@ -16,8 +16,6 @@ export class Controls {
     navUp: 51,
     navDown: 52,
     right: null, // TODO: Find CC for Right arrow
-    arp: null, // TODO: Find CC for Arp
-    scale: null, // TODO: Find CC for Scale
     func: null, // TODO: Find CC for Func
   };
 
@@ -32,8 +30,6 @@ export class Controls {
     this.attachButtonListener('settings-btn', 'settings');
     this.attachButtonListener('play-btn', 'play');
     this.attachButtonListener('record-btn', 'record');
-    this.attachButtonListener('arp-btn', 'arp');
-    this.attachButtonListener('scale-btn', 'scale');
     this.attachButtonListener('up-btn', 'up');
     this.attachButtonListener('down-btn', 'down');
     this.attachButtonListener('nav-up-btn', 'navUp');
