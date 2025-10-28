@@ -2,7 +2,7 @@ import MidiInterface from '../MidiInterface';
 
 export class Controls {
   private midi: MidiInterface;
-  private controlChannel = 15; // DAW channel
+  private controlChannel = 0;
 
   // CC numbers for buttons (from mk4.ts comment)
   private readonly ccMap: Record<string, number | null> = {
@@ -10,12 +10,10 @@ export class Controls {
     settings: null, // TODO: Find CC for Settings
     play: 115,
     record: 117,
-    'oct-minus': 114,
-    'oct-plus': 113,
     up: 51,
     down: 52,
-    'nav-up': 51,
-    'nav-down': 52,
+    navUp: 51,
+    navDown: 52,
     right: null, // TODO: Find CC for Right arrow
     arp: null, // TODO: Find CC for Arp
     scale: null, // TODO: Find CC for Scale
@@ -33,14 +31,12 @@ export class Controls {
     this.attachButtonListener('settings-btn', 'settings');
     this.attachButtonListener('play-btn', 'play');
     this.attachButtonListener('record-btn', 'record');
-    this.attachButtonListener('oct-minus-btn', 'oct-minus');
-    this.attachButtonListener('oct-plus-btn', 'oct-plus');
     this.attachButtonListener('arp-btn', 'arp');
     this.attachButtonListener('scale-btn', 'scale');
     this.attachButtonListener('up-btn', 'up');
     this.attachButtonListener('down-btn', 'down');
-    this.attachButtonListener('nav-up-btn', 'nav-up');
-    this.attachButtonListener('nav-down-btn', 'nav-down');
+    this.attachButtonListener('nav-up-btn', 'navUp');
+    this.attachButtonListener('nav-down-btn', 'navDown');
     this.attachButtonListener('right-btn', 'right');
     this.attachButtonListener('func-btn', 'func');
 
@@ -58,7 +54,8 @@ export class Controls {
 
     button.addEventListener('mousedown', () => this.handleButtonPress(type));
     button.addEventListener('mouseup', () => this.handleButtonRelease(type));
-    button.addEventListener('mouseleave', () => this.handleButtonRelease(type));
+    // CLAUDE BUGGY
+    // button.addEventListener('mouseleave', () => this.handleButtonRelease(type));
 
     // Touch support
     button.addEventListener('touchstart', (e) => {
@@ -85,6 +82,9 @@ export class Controls {
     });
     strip.addEventListener('mouseleave', () => {
       strip.style.background = '';
+    });
+    strip.addEventListener('mousemove', (e) => {
+      console.log('wtf', e);
     });
   }
 

@@ -2,7 +2,7 @@ export class OledScreen {
   private screenElement: HTMLElement | null = null;
   private persistentContent: string = '';
   private tempTimer: number | null = null;
-  private readonly TEMP_DISPLAY_DURATION = 2000; // 2 seconds
+  private readonly TEMP_DISPLAY_DURATION = 2_000;
 
   constructor() {
     this.initializeScreen();

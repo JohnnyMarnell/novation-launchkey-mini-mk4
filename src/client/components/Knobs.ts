@@ -2,12 +2,7 @@ import MidiInterface from '../MidiInterface';
 
 export class Knobs {
   private midi: MidiInterface;
-
-  // Launchkey Mini MK4 has 8 knobs
-  private readonly numKnobs = 8;
-  // CC numbers for the 8 knobs (standard mapping for Launchkey Mini)
-  private readonly ccNumbers = [21, 22, 23, 24, 25, 26, 27, 28];
-
+  private readonly ccNumberStart = 21;
   private knobChannel = 15
 
   constructor(midi: MidiInterface) {
@@ -21,7 +16,7 @@ export class Knobs {
 
     knobElements.forEach((knobWrapper) => {
       const index = parseInt(knobWrapper.getAttribute('data-knob-index') || '0');
-      if (index >= this.numKnobs) return;
+      if (!(index >= 0)) return;
 
       const knobVisual = knobWrapper.querySelector('.knob-visual') as HTMLElement;
       if (!knobVisual) return;
@@ -38,8 +33,9 @@ export class Knobs {
         startY = clientY;
 
         this.updateKnob(knobVisual, currentValue);
-        this.midi.sendCC(this.ccNumbers[index], Math.round(currentValue), this.knobChannel);
-        console.log(`Knob ${index + 1} (CC${this.ccNumbers[index]}): ${Math.round(currentValue)}`);
+        const ccNum = this.ccNumberStart + index;
+        this.midi.sendCC(ccNum, Math.round(currentValue), this.knobChannel);
+        console.log(`Knob ${index + 1} (CC${ccNum}): ${Math.round(currentValue)}`);
       };
 
       knobVisual.addEventListener('mousedown', (e) => {
