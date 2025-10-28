@@ -3,6 +3,7 @@ import MidiInterface from '../MidiInterface';
 export class Controls {
   private midi: MidiInterface;
   private controlChannel = 0;
+  private pressedButtons: Set<string> = new Set(); // Track which buttons are currently pressed
 
   // CC numbers for buttons (from mk4.ts comment)
   private readonly ccMap: Record<string, number | null> = {
@@ -54,8 +55,12 @@ export class Controls {
 
     button.addEventListener('mousedown', () => this.handleButtonPress(type));
     button.addEventListener('mouseup', () => this.handleButtonRelease(type));
-    // CLAUDE BUGGY
-    // button.addEventListener('mouseleave', () => this.handleButtonRelease(type));
+    // Only release if button was actually pressed (not just hovering)
+    button.addEventListener('mouseleave', () => {
+      if (this.pressedButtons.has(type)) {
+        this.handleButtonRelease(type);
+      }
+    });
 
     // Touch support
     button.addEventListener('touchstart', (e) => {
@@ -89,6 +94,9 @@ export class Controls {
   }
 
   private handleButtonPress(type: string) {
+    // Track that this button is pressed
+    this.pressedButtons.add(type);
+
     const cc = this.ccMap[type];
     if (cc !== null && cc !== undefined) {
       this.midi.sendCC(cc, 127, this.controlChannel);
@@ -99,6 +107,14 @@ export class Controls {
   }
 
   private handleButtonRelease(type: string) {
+    // Only send release if button was actually pressed
+    if (!this.pressedButtons.has(type)) {
+      return;
+    }
+
+    // Remove from pressed buttons set
+    this.pressedButtons.delete(type);
+
     const cc = this.ccMap[type];
     if (cc !== null && cc !== undefined) {
       this.midi.sendCC(cc, 0, this.controlChannel);
