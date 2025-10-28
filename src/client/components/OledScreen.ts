@@ -1,43 +1,42 @@
 export class OledScreen {
-  private container: HTMLElement;
-  private lines: HTMLElement[] = [];
-  private persistentLines: string[] = ['', '', ''];
+  private screenElement: HTMLElement | null = null;
+  private persistentContent: string = '';
   private tempTimer: number | null = null;
   private readonly TEMP_DISPLAY_DURATION = 2000; // 2 seconds
 
-  constructor(container: HTMLElement) {
-    this.container = container;
-    this.createScreen();
+  constructor() {
+    this.initializeScreen();
   }
 
-  private createScreen() {
-    const screen = document.createElement('div');
-    screen.className = 'oled-screen';
-
-    // Create 3 lines for text display
-    for (let i = 0; i < 3; i++) {
-      const line = document.createElement('div');
-      line.className = 'oled-line';
-      line.textContent = '';
-      this.lines.push(line);
-      screen.appendChild(line);
+  private initializeScreen() {
+    // Find the existing OLED screen element in the DOM
+    this.screenElement = document.getElementById('oled-screen');
+    if (!this.screenElement) {
+      console.error('OLED screen element not found');
+      return;
     }
 
-    this.container.appendChild(screen);
+    // Store the initial content as persistent
+    this.persistentContent = this.screenElement.innerHTML;
   }
 
   updateDisplay(lines: string[], isPersistent: boolean = false) {
+    if (!this.screenElement) return;
+
+    // Convert lines array to HTML content
+    const content = this.formatLines(lines);
+
     if (isPersistent) {
-      // Store persistent text
-      this.persistentLines = [...lines];
+      // Store persistent content
+      this.persistentContent = content;
 
       // Only update display if no temporary message is showing
       if (this.tempTimer === null) {
-        this.render(lines);
+        this.render(content);
       }
     } else {
       // Temporary text - show now and revert after timer
-      this.render(lines);
+      this.render(content);
 
       // Clear existing timer if any
       if (this.tempTimer !== null) {
@@ -46,15 +45,22 @@ export class OledScreen {
 
       // Set timer to revert to persistent text
       this.tempTimer = window.setTimeout(() => {
-        this.render(this.persistentLines);
+        this.render(this.persistentContent);
         this.tempTimer = null;
       }, this.TEMP_DISPLAY_DURATION);
     }
   }
 
-  private render(lines: string[]) {
-    for (let i = 0; i < 3; i++) {
-      this.lines[i].textContent = lines[i] || '';
+  private formatLines(lines: string[]): string {
+    // Format lines as HTML similar to the original structure
+    return `<div class="display-content">${lines.map(line =>
+      `<span class="mode-text">${line || ''}</span>`
+    ).join('<br>')}</div>`;
+  }
+
+  private render(content: string) {
+    if (this.screenElement) {
+      this.screenElement.innerHTML = content;
     }
   }
 }

@@ -2,6 +2,7 @@ import MidiInterface from './MidiInterface';
 import { Keyboard } from './components/Keyboard';
 import { Knobs } from './components/Knobs';
 import { OledScreen } from './components/OledScreen';
+import { Controls } from './components/Controls';
 import './style.css';
 
 class App {
@@ -13,31 +14,24 @@ class App {
     // Initialize MIDI
     this.midi = new MidiInterface();
 
-    // Get container
-    const container = document.getElementById('launchkey-container');
+    // Verify the keyboard container exists
+    const container = document.querySelector('.keyboard-container');
     if (!container) {
-      throw new Error('Container not found');
+      throw new Error('Keyboard container not found');
     }
 
-    // Create OLED screen section
-    const oledSection = document.createElement('div');
-    oledSection.className = 'section oled-section';
-    container.appendChild(oledSection);
+    // Initialize components - they now find their own DOM elements
+    const oled = new OledScreen();
+    new Controls(this.midi);
+    new Knobs(this.midi);
 
-    // Create knobs section
-    const knobsSection = document.createElement('div');
-    knobsSection.className = 'section';
-    container.appendChild(knobsSection);
-
-    // Create keyboard section
-    const keyboardSection = document.createElement('div');
-    keyboardSection.className = 'section';
-    container.appendChild(keyboardSection);
-
-    // Initialize components
-    const oled = new OledScreen(oledSection);
-    new Knobs(knobsSection, this.midi);
-    new Keyboard(keyboardSection, this.midi);
+    // Keyboard still needs a container since it creates keys dynamically
+    const keyboardSection = document.getElementById('keyboard-section');
+    if (keyboardSection) {
+      new Keyboard(keyboardSection, this.midi);
+    } else {
+      console.warn('Keyboard section not found, keyboard not initialized');
+    }
 
     // Wire up OLED updates
     this.midi.onOledUpdate((lines, isPersistent) => {

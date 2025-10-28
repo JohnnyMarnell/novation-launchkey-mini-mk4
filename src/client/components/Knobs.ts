@@ -1,7 +1,6 @@
 import MidiInterface from '../MidiInterface';
 
 export class Knobs {
-  private container: HTMLElement;
   private midi: MidiInterface;
 
   // Launchkey Mini MK4 has 8 knobs
@@ -11,34 +10,21 @@ export class Knobs {
 
   private knobChannel = 15
 
-  constructor(container: HTMLElement, midi: MidiInterface) {
-    this.container = container;
+  constructor(midi: MidiInterface) {
     this.midi = midi;
-    this.createKnobs();
+    this.initializeKnobs();
   }
 
-  private createKnobs() {
-    const knobsDiv = document.createElement('div');
-    knobsDiv.className = 'knobs-container';
+  private initializeKnobs() {
+    // Find all existing knob elements in the DOM
+    const knobElements = document.querySelectorAll('.knob[data-knob-index]');
 
-    for (let i = 0; i < this.numKnobs; i++) {
-      const knobWrapper = document.createElement('div');
-      knobWrapper.className = 'knob-wrapper';
+    knobElements.forEach((knobWrapper) => {
+      const index = parseInt(knobWrapper.getAttribute('data-knob-index') || '0');
+      if (index >= this.numKnobs) return;
 
-      const knobLabel = document.createElement('div');
-      knobLabel.className = 'knob-label';
-      knobLabel.textContent = `K${i + 1}`;
-
-      const knob = document.createElement('div');
-      knob.className = 'knob';
-
-      const knobIndicator = document.createElement('div');
-      knobIndicator.className = 'knob-indicator';
-      knob.appendChild(knobIndicator);
-
-      const valueDisplay = document.createElement('div');
-      valueDisplay.className = 'knob-value';
-      valueDisplay.textContent = '0';
+      const knobVisual = knobWrapper.querySelector('.knob-visual') as HTMLElement;
+      if (!knobVisual) return;
 
       let isDragging = false;
       let startY = 0;
@@ -51,12 +37,12 @@ export class Knobs {
         currentValue = Math.max(0, Math.min(127, currentValue + delta));
         startY = clientY;
 
-        this.updateKnob(knob, currentValue, valueDisplay);
-        this.midi.sendCC(this.ccNumbers[i], Math.round(currentValue), this.knobChannel);
-        console.log(`Knob ${i + 1} (CC${this.ccNumbers[i]}): ${Math.round(currentValue)}`);
+        this.updateKnob(knobVisual, currentValue);
+        this.midi.sendCC(this.ccNumbers[index], Math.round(currentValue), this.knobChannel);
+        console.log(`Knob ${index + 1} (CC${this.ccNumbers[index]}): ${Math.round(currentValue)}`);
       };
 
-      knob.addEventListener('mousedown', (e) => {
+      knobVisual.addEventListener('mousedown', (e) => {
         isDragging = true;
         startY = e.clientY;
         e.preventDefault();
@@ -69,7 +55,7 @@ export class Knobs {
       });
 
       // Touch support
-      knob.addEventListener('touchstart', (e) => {
+      knobVisual.addEventListener('touchstart', (e) => {
         isDragging = true;
         startY = e.touches[0].clientY;
         e.preventDefault();
@@ -84,22 +70,12 @@ export class Knobs {
       document.addEventListener('touchend', () => {
         isDragging = false;
       });
-
-      knobWrapper.appendChild(knobLabel);
-      knobWrapper.appendChild(knob);
-      knobWrapper.appendChild(valueDisplay);
-      knobsDiv.appendChild(knobWrapper);
-    }
-
-    this.container.appendChild(knobsDiv);
+    });
   }
 
-  private updateKnob(knob: HTMLElement, value: number, valueDisplay: HTMLElement) {
+  private updateKnob(knobVisual: HTMLElement, value: number) {
     const rotation = (value / 127) * 270 - 135; // -135 to +135 degrees
-    const indicator = knob.querySelector('.knob-indicator') as HTMLElement;
-    if (indicator) {
-      indicator.style.transform = `rotate(${rotation}deg)`;
-    }
-    valueDisplay.textContent = Math.round(value).toString();
+    // Rotate the ::after pseudo-element by rotating the entire knob visual
+    knobVisual.style.transform = `rotate(${rotation}deg)`;
   }
 }
