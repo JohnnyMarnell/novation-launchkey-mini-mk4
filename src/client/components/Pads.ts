@@ -28,7 +28,9 @@ export class Pads {
     'c': 2,  // Top row, third pad, typically open hi hat
     'C': 2,
     'v': 3,  // Top row, fourth pad, typically closed hi hat
-    'V': 3
+    'V': 3,
+    '/': 15,
+    '?': 15
   };
 
   // Track which pads are currently pressed

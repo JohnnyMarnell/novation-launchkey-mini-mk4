@@ -4,6 +4,7 @@ export class Controls {
   private midi: MidiInterface;
   private controlChannel = 0;
   private pressedButtons: Set<string> = new Set(); // Track which buttons are currently pressed
+  private pressedKeys: Set<string> = new Set(); // Track which keyboard keys are currently pressed
 
   // CC numbers for buttons (from mk4.ts comment)
   private readonly ccMap: Record<string, number | null> = {
@@ -11,17 +12,30 @@ export class Controls {
     settings: null, // TODO: Find CC for Settings
     play: 115,
     record: 117,
-    up: 51,
-    down: 52,
-    navUp: 51,
-    navDown: 52,
-    right: null, // TODO: Find CC for Right arrow
-    func: null, // TODO: Find CC for Func
+    up: 106,      // Main navigation up (larger arrows in display area)
+    down: 107,    // Main navigation down (larger arrows in display area)
+    navUp: 51,    // Transpose up (smaller arrows in right nav)
+    navDown: 52,  // Transpose down (smaller arrows in right nav)
+    right: 104,
+    func: 105,
+  };
+
+  // Computer keyboard to control mapping
+  private readonly keyboardMap: Record<string, string> = {
+    'a': 'play',
+    'A': 'play',
+    's': 'record',
+    'S': 'record',
+    'd': 'down',
+    'D': 'down',
+    'f': 'up',
+    'F': 'up',
   };
 
   constructor(midi: MidiInterface) {
     this.midi = midi;
     this.initializeControls();
+    this.setupKeyboardListeners();
   }
 
   private initializeControls() {
@@ -40,6 +54,55 @@ export class Controls {
     // Initialize pitch and mod strips (if needed for functionality)
     this.initializeStrip('pitch-strip');
     this.initializeStrip('mod-strip');
+  }
+
+  private setupKeyboardListeners() {
+    document.addEventListener('keydown', (e) => {
+      this.handleKeyDown(e);
+    });
+
+    document.addEventListener('keyup', (e) => {
+      this.handleKeyUp(e);
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent) {
+    // Ignore if user is typing in an input field
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+
+    const controlType = this.keyboardMap[e.key];
+
+    if (controlType && !this.pressedKeys.has(e.key)) {
+      e.preventDefault();
+      this.pressedKeys.add(e.key);
+      this.handleButtonPress(controlType);
+
+      // Add visual feedback to the button
+      const buttonId = controlType + '-btn';
+      const button = document.getElementById(buttonId);
+      if (button) {
+        button.classList.add('active');
+      }
+    }
+  }
+
+  private handleKeyUp(e: KeyboardEvent) {
+    const controlType = this.keyboardMap[e.key];
+
+    if (controlType && this.pressedKeys.has(e.key)) {
+      e.preventDefault();
+      this.pressedKeys.delete(e.key);
+      this.handleButtonRelease(controlType);
+
+      // Remove visual feedback from the button
+      const buttonId = controlType + '-btn';
+      const button = document.getElementById(buttonId);
+      if (button) {
+        button.classList.remove('active');
+      }
+    }
   }
 
   private attachButtonListener(elementId: string, type: string) {

@@ -97,6 +97,12 @@ body {
   background: #4a4a4a;
 }
 
+.btn:active,
+.btn.active {
+  transform: scale(0.95);
+  filter: brightness(0.8);
+}
+
 .btn-small,
 .btn-icon {
   font-size: 0.8rem;
@@ -114,9 +120,21 @@ body {
   color: var(--btn-play);
 }
 
+.btn-play:active,
+.btn-play.active {
+  background: #3a5a3a;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
 .btn-record {
   background: #4a2a2a;
   color: var(--btn-record);
+}
+
+.btn-record:active,
+.btn-record.active {
+  background: #5a3a3a;
+  box-shadow: 0 0 10px rgba(255, 23, 68, 0.3);
 }
 
 .wheel {
