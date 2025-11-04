@@ -292,8 +292,11 @@ body {
   filter: brightness(1.2);
 }
 
-.pad:active {
+.pad:active,
+.pad-active {
   transform: scale(0.95);
+  filter: brightness(1.5);
+  box-shadow: 0 0 20px rgba(0, 206, 209, 0.8);
 }
 
 .pad-label {

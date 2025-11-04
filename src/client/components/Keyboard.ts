@@ -43,7 +43,6 @@ export class Keyboard {
     // 7 is unused (B-C gap)
     '8': 61,        // C#4
     '9': 63,        // D#4
-    '0': 70,        // A#4
     '-': 66,        // F#4
     '=': 68,        // G#4
     'Backspace': 70, // A#4 
@@ -178,7 +177,7 @@ export class Keyboard {
     const key = this.keys[keyIndex];
     if (key && !key.classList.contains('active')) {
       key.classList.add('active');
-      this.midi.sendNoteOn(note, 100, this.keyChannel);
+      this.midi.sendNoteOn(note, 120, this.keyChannel);
       console.log(`Note On: ${note}`);
     }
   }

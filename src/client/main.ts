@@ -3,6 +3,7 @@ import { Keyboard } from './components/Keyboard';
 import { Knobs } from './components/Knobs';
 import { OledScreen } from './components/OledScreen';
 import { Controls } from './components/Controls';
+import { Pads } from './components/Pads';
 import './style.css';
 
 class App {
@@ -24,6 +25,7 @@ class App {
     const oled = new OledScreen();
     new Controls(this.midi);
     new Knobs(this.midi);
+    new Pads(this.midi); // Initialize pads component
 
     // Keyboard still needs a container since it creates keys dynamically
     const keyboardSection = document.getElementById('keyboard-section');
