@@ -2,8 +2,10 @@ import MidiInterface from '../MidiInterface';
 
 export class Knobs {
   private midi: MidiInterface;
-  private readonly ccNumberStart = 21;
-  private knobChannel = 15
+  private readonly ccMixer = 21;
+  private readonly ccTransport = 85;
+  private knobChannel = 15;
+  private knobMode: 'mixer' | 'transport' = 'transport';
 
   constructor(midi: MidiInterface) {
     this.midi = midi;
@@ -29,18 +31,42 @@ export class Knobs {
         if (!isDragging) return;
 
         const delta = startY - clientY;
-        currentValue = Math.max(0, Math.min(127, currentValue + delta));
-        startY = clientY;
+        const ccNum = (this.knobMode === 'mixer' ? this.ccMixer : this.ccTransport) + index;
 
-        this.updateKnob(knobVisual, currentValue);
-        const ccNum = this.ccNumberStart + index;
-        this.midi.sendCC(ccNum, Math.round(currentValue), this.knobChannel);
-        console.log(`Knob ${index + 1} (CC${ccNum}): ${Math.round(currentValue)}`);
+        if (this.knobMode === 'mixer') {
+          // Mixer mode: direct CC value from visual position
+          currentValue = Math.max(0, Math.min(127, currentValue + delta));
+          this.updateKnob(knobVisual, currentValue);
+          this.midi.sendCC(ccNum, Math.round(currentValue), this.knobChannel);
+          console.log(`Knob ${index + 1} (CC${ccNum}) [MIXER]: ${Math.round(currentValue)}`);
+        } else {
+          // Transport/Relative mode: send relative encoder values (64 = center)
+          const absDelta = Math.abs(delta);
+          let relativeValue: number;
+
+          if (absDelta === 1) {
+            relativeValue = delta < 0 ? 65 : 63; // +1 or -1
+          } else if (absDelta === 2) {
+            relativeValue = delta < 0 ? 66 : 62; // +2 or -2
+          } else {
+            // Large movement: scale the delta
+            const scaled = Math.min(7, Math.ceil(absDelta / 10));
+            relativeValue = delta < 0 ? 64 + scaled : 64 - scaled;
+          }
+
+          this.midi.sendCC(ccNum, relativeValue, this.knobChannel);
+          console.log(`Knob ${index + 1} (CC${ccNum}) [TRANSPORT]: ${relativeValue}`);
+        }
+
+        startY = clientY;
       };
 
       knobVisual.addEventListener('mousedown', (e) => {
         isDragging = true;
         startY = e.clientY;
+        if (this.knobMode === 'mixer') {
+          currentValue = this.getValueFromKnobVisual(knobVisual);
+        }
         e.preventDefault();
       });
 
@@ -54,6 +80,9 @@ export class Knobs {
       knobVisual.addEventListener('touchstart', (e) => {
         isDragging = true;
         startY = e.touches[0].clientY;
+        if (this.knobMode === 'mixer') {
+          currentValue = this.getValueFromKnobVisual(knobVisual);
+        }
         e.preventDefault();
       });
 
@@ -67,6 +96,19 @@ export class Knobs {
         isDragging = false;
       });
     });
+  }
+
+  private getValueFromKnobVisual(knobVisual: HTMLElement): number {
+    // Extract the rotation value from the transform style
+    const transform = knobVisual.style.transform;
+    const rotationMatch = transform.match(/rotate\(([^d]+)deg\)/);
+    if (rotationMatch) {
+      const rotation = parseFloat(rotationMatch[1]);
+      // Reverse engineer: rotation = (value / 127) * 270 - 135
+      const value = ((rotation + 135) / 270) * 127;
+      return Math.round(Math.max(0, Math.min(127, value)));
+    }
+    return 0;
   }
 
   private updateKnob(knobVisual: HTMLElement, value: number) {
