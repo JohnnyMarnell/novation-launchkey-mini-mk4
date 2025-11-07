@@ -120,6 +120,12 @@ class MidiHandler {
     // Check for SysEx messages (F0 ... F7)
     if (message[0] === 0xF0 && message[message.length - 1] === 0xF7) {
       this.parseSysEx(message);
+    } else if (message.length === 3) {
+      const [status, data, value] = message
+      const channel = (status & 0x0F);
+      const type = status & 0xF0;
+      console.log(`[DAW midi] type=0x${type.toString(16).toUpperCase()}, channel=${channel}, data=${data}, value=${value}`);
+      this.broadcast({type: 'midi', midiType: type, channel, data, value })
     }
   }
 
@@ -147,7 +153,7 @@ class MidiHandler {
       const state = this.oledState.get(target)!;
       state.fields[field] = text;
 
-      console.log(`[OLED] Target: 0x${target.toString(16)}, Field: ${field}, Text: "${text}"`);
+      // console.log(`[OLED] Target: 0x${target.toString(16)}, Field: ${field}, Text: "${text}"`);
     } else if (command === 0x04 && payload.length >= 3 && payload[2] === 0x7F) {
       // Trigger display: 04 <target> 7F
       const target = payload[1];
@@ -171,15 +177,17 @@ class MidiHandler {
       this.lastPersistentText = lines;
     }
 
-    const message = JSON.stringify({
+    this.broadcast({
       type: 'oled-update',
       lines,
       isPersistent,
-    });
+    })
+  }
 
+  private broadcast(msg: any) {
     this.clients.forEach(client => {
       if (client.readyState === 1) { // WebSocket.OPEN
-        client.send(message);
+        client.send(JSON.stringify(msg));
       }
     });
   }

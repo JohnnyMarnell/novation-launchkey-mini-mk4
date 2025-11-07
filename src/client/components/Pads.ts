@@ -40,6 +40,17 @@ export class Pads {
     this.midi = midi;
     this.initializePads();
     this.setupKeyboardListeners();
+    
+    const colors: any = {60: 'pink', 72: 'pink', 78: 'teal'};
+    this.midi.addListener((event: any) => {
+      if (event.type === 'midi') {
+        const {midiType, channel, data, value} = event;
+        const index = this.padNotes.indexOf(data);
+        if (midiType === 0x90 && channel === 0 && index >= 0) {
+          this.pads[index].style.backgroundColor = colors[value] || 'grey'
+        }
+      }
+    })
   }
 
   private initializePads() {
