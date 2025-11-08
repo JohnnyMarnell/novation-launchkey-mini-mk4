@@ -41,21 +41,25 @@ export class Knobs {
           console.log(`Knob ${index + 1} (CC${ccNum}) [MIXER]: ${Math.round(currentValue)}`);
         } else {
           // Transport/Relative mode: send relative encoder values (64 = center)
+          // delta > 0 = dragging up (increase), delta < 0 = dragging down (decrease)
           const absDelta = Math.abs(delta);
           let relativeValue: number;
 
-          if (absDelta === 1) {
-            relativeValue = delta < 0 ? 65 : 63; // +1 or -1
-          } else if (absDelta === 2) {
-            relativeValue = delta < 0 ? 66 : 62; // +2 or -2
+          if (absDelta === 0) {
+            return; // No movement, don't send anything
+          } else if (absDelta === 1) {
+            relativeValue = delta > 0 ? 65 : 63; // +1 or -1
+          } else if (absDelta <= 3) {
+            relativeValue = delta > 0 ? 66 : 62; // +2 or -2
+          } else if (absDelta <= 6) {
+            relativeValue = delta > 0 ? 67 : 61; // +3 or -3
           } else {
-            // Large movement: scale the delta
-            const scaled = Math.min(7, Math.ceil(absDelta / 10));
-            relativeValue = delta < 0 ? 64 + scaled : 64 - scaled;
+            // Large movement: max out at +/-7
+            relativeValue = delta > 0 ? 71 : 57; // +7 or -7
           }
 
           this.midi.sendCC(ccNum, relativeValue, this.knobChannel);
-          console.log(`Knob ${index + 1} (CC${ccNum}) [TRANSPORT]: ${relativeValue}`);
+          console.log(`Knob ${index + 1} (CC${ccNum}) [TRANSPORT]: ${relativeValue} (delta: ${delta})`);
         }
 
         startY = clientY;
