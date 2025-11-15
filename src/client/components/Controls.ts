@@ -1,5 +1,8 @@
 import MidiInterface from '../MidiInterface';
 
+export type Button = "shift" | "settings" | "play" | "record" | "up" | "down"
+                    | "navUp" | "navDown" | "right" | "func"
+
 export class Controls {
   private midi: MidiInterface;
   private controlChannel = 0;
@@ -7,9 +10,8 @@ export class Controls {
   private pressedKeys: Set<string> = new Set(); // Track which keyboard keys are currently pressed
 
   // CC numbers for buttons (from mk4.ts comment)
-  private readonly ccMap: Record<string, number | null> = {
+  private readonly ccMap: Record<Button, number | null> = {
     shift: 63,
-    settings: null, // TODO: Find CC for Settings
     play: 115,
     record: 117,
     up: 106,      // Main navigation up (larger arrows in display area)
@@ -18,18 +20,21 @@ export class Controls {
     navDown: 52,  // Transpose down (smaller arrows in right nav)
     right: 104,
     func: 105,
+    settings: null, // Pretty sure this doesn't have a CC message
   };
 
   // Computer keyboard to control mapping
-  private readonly keyboardMap: Record<string, string> = {
+  private readonly keyboardMap: Record<string, Button> = {
     'a': 'play',
     'A': 'play',
     's': 'record',
     'S': 'record',
     'd': 'down',
     'D': 'down',
-    'f': 'up',
-    'F': 'up',
+    'f': 'func',
+    'F': 'func',
+    'ArrowUp': 'navUp',
+    'ArrowDown': 'navDown',
   };
 
   constructor(midi: MidiInterface) {
@@ -57,13 +62,8 @@ export class Controls {
   }
 
   private setupKeyboardListeners() {
-    document.addEventListener('keydown', (e) => {
-      this.handleKeyDown(e);
-    });
-
-    document.addEventListener('keyup', (e) => {
-      this.handleKeyUp(e);
-    });
+    document.addEventListener('keydown', this.handleKeyDown.bind(this))
+    document.addEventListener('keyup', this.handleKeyUp.bind(this))
   }
 
   private handleKeyDown(e: KeyboardEvent) {
