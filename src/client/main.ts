@@ -4,6 +4,7 @@ import { Knobs } from './components/Knobs';
 import { OledScreen } from './components/OledScreen';
 import { Controls } from './components/Controls';
 import { Pads } from './components/Pads';
+import { Wheels } from './components/Wheels';
 import './style.css';
 
 class App {
@@ -28,6 +29,7 @@ class App {
     new Controls(this.midi);
     new Knobs(this.midi);
     new Pads(this.midi); // Initialize pads component
+    new Wheels(this.midi); // Initialize pitch and mod wheels
 
     // Keyboard still needs a container since it creates keys dynamically
     const keyboardSection = document.getElementById('keyboard-section');

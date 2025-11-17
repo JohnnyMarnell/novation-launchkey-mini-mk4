@@ -45,6 +45,12 @@ export class Pads {
     this.midi.addListener((event: any) => {
       if (event.type === 'midi') {
         const {midiType, channel, data, value} = event;
+
+        // Only respond to channel 9 (drums channel)
+        if (channel !== 9) {
+          return;
+        }
+
         let index = this.padNotes.indexOf(data);
 
         // If note not in pad range, map it using modulo

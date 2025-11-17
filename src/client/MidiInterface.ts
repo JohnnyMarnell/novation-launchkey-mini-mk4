@@ -73,6 +73,10 @@ class MidiInterface {
     this.send({ type: 'cc', ccNumber, value, channel });
   }
 
+  sendPitchBend(lsb: number, msb: number, channel: number = 0) {
+    this.send({ type: 'pitch-bend', lsb, msb, channel });
+  }
+
   disconnect() {
     this.ws?.close();
     this.ws = null;

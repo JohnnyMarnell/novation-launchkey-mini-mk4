@@ -2,12 +2,14 @@ import midi from '@julusian/midi';
 import type { WebSocket } from 'ws';
 
 interface MidiMessage {
-  type: 'note-on' | 'note-off' | 'cc' | 'cc-standard';
+  type: 'note-on' | 'note-off' | 'cc' | 'cc-standard' | 'pitch-bend';
   note?: number;
   velocity?: number;
   channel: number;
   ccNumber?: number;
   value?: number;
+  lsb?: number;
+  msb?: number;
 }
 
 interface OledDisplayState {
@@ -248,6 +250,15 @@ class MidiHandler {
             const status = 0xB0 | message.channel;
             this.virtualMidiOut.sendMessage([status, message.ccNumber, message.value]);
             console.log(`[GUI→Virtual] CC (Std) → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
+          }
+          break;
+
+        case 'pitch-bend':
+          if (message.lsb !== undefined && message.msb !== undefined) {
+            const status = 0xE0 | message.channel;
+            this.virtualMidiOut.sendMessage([status, message.lsb, message.msb]);
+            const value14bit = (message.msb << 7) | message.lsb;
+            console.log(`[GUI→Virtual] Pitch Bend → Value: ${value14bit} (center: 8192), Channel: ${message.channel}`);
           }
           break;
 
