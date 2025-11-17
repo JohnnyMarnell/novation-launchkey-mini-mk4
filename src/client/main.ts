@@ -43,31 +43,61 @@ class App {
     });
 
     // Numpad sustain pedal functionality
+    const sustainIndicator = document.getElementById('sustain-indicator');
+
+    const setSustain = (on: boolean) => {
+      if (on && !this.sustainPedalOn) {
+        this.midi.sendCC(64, 127, 8);
+        this.sustainPedalOn = true;
+        sustainIndicator?.classList.add('active');
+        console.log('Sustain pedal ON');
+      } else if (!on && this.sustainPedalOn) {
+        this.midi.sendCC(64, 0, 8);
+        this.sustainPedalOn = false;
+        sustainIndicator?.classList.remove('active');
+        console.log('Sustain pedal OFF');
+      }
+    };
+
+    // Click to toggle sustain
+    sustainIndicator?.addEventListener('click', () => {
+      setSustain(!this.sustainPedalOn);
+    });
+
     document.addEventListener('keydown', (e) => {
+      // Numpad keys
       if (e.code.startsWith('Numpad')) {
-        // Only act if this is a new key press (not a repeat)
         if (!this.pressedNumpadKeys.has(e.code)) {
           this.pressedNumpadKeys.add(e.code);
-
-          // If this is the first numpad key pressed, send sustain ON
-          if (this.pressedNumpadKeys.size === 1 && !this.sustainPedalOn) {
-            this.midi.sendCC(64, 127, 0); // CC 64 = sustain pedal, value 127 = ON
-            this.sustainPedalOn = true;
-            console.log('Sustain pedal ON');
+          if (this.pressedNumpadKeys.size === 1) {
+            setSustain(true);
+          }
+        }
+      }
+      // Quote keys (single ' and double ")
+      else if (e.code === 'Quote') {
+        if (!this.pressedNumpadKeys.has(e.code)) {
+          this.pressedNumpadKeys.add(e.code);
+          if (this.pressedNumpadKeys.size === 1) {
+            setSustain(true);
           }
         }
       }
     });
 
     document.addEventListener('keyup', (e) => {
+      // Numpad keys
       if (e.code.startsWith('Numpad')) {
         this.pressedNumpadKeys.delete(e.code);
-
-        // If all numpad keys are released, send sustain OFF
-        if (this.pressedNumpadKeys.size === 0 && this.sustainPedalOn) {
-          this.midi.sendCC(64, 0, 0); // CC 64 = sustain pedal, value 0 = OFF
-          this.sustainPedalOn = false;
-          console.log('Sustain pedal OFF');
+        if (this.pressedNumpadKeys.size === 0) {
+          setSustain(false);
+        }
+      }
+      // Quote key
+      else if (e.code === 'Quote') {
+        this.pressedNumpadKeys.delete(e.code);
+        if (this.pressedNumpadKeys.size === 0) {
+          setSustain(false);
         }
       }
     });

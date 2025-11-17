@@ -56,6 +56,44 @@ export class Keyboard {
     this.midi = midi;
     this.createKeyboard();
     this.setupGlobalListeners();
+    this.setupMidiListener();
+  }
+
+  private setupMidiListener() {
+    // Listen for incoming MIDI from any device to update GUI
+    this.midi.addListener((event: any) => {
+      if (event.type === 'midi') {
+        const {midiType, channel, data, value} = event;
+
+        const note = data;
+        let keyIndex = note - this.startNote;
+
+        // Map out-of-range notes to keyboard range
+        if (keyIndex < 0 || keyIndex >= this.numKeys) {
+          // Map any MIDI note to keyboard range using modulo
+          keyIndex = note % this.numKeys;
+        }
+
+        if (keyIndex >= 0 && keyIndex < this.numKeys) {
+          const key = this.keys[keyIndex];
+
+          // Handle Note On (0x90)
+          if (midiType === 0x90 && value > 0) {
+            if (key && !key.classList.contains('active')) {
+              key.classList.add('active');
+              console.log(`[MIDI Device ch${channel}] Key ${note} (mapped to index ${keyIndex}) pressed`);
+            }
+          }
+          // Handle Note Off (0x80) or Note On with velocity 0
+          else if (midiType === 0x80 || (midiType === 0x90 && value === 0)) {
+            if (key && key.classList.contains('active')) {
+              key.classList.remove('active');
+              console.log(`[MIDI Device ch${channel}] Key ${note} (mapped to index ${keyIndex}) released`);
+            }
+          }
+        }
+      }
+    });
   }
 
   private createKeyboard() {

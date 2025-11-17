@@ -45,9 +45,16 @@ export class Pads {
     this.midi.addListener((event: any) => {
       if (event.type === 'midi') {
         const {midiType, channel, data, value} = event;
-        const index = this.padNotes.indexOf(data);
-        if (midiType === 0x90 && channel === 0 && index >= 0) {
+        let index = this.padNotes.indexOf(data);
+
+        // If note not in pad range, map it using modulo
+        if (index < 0 && midiType === 0x90) {
+          index = data % this.numPads;
+        }
+
+        if (midiType === 0x90 && index >= 0 && index < this.numPads) {
           this.pads[index].style.backgroundColor = colors[value] || 'grey'
+          console.log(`[MIDI Device ch${channel}] Pad ${index} (note ${data}) lit`);
         }
       }
     })

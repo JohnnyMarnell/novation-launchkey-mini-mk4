@@ -28,6 +28,9 @@ class MidiHandler {
   private realDawOut: midi.Output | null = null;
   private realDawIn: midi.Input | null = null;
 
+  // Other MIDI devices (for visual feedback only)
+  private otherMidiInputs: midi.Input[] = [];
+
   private clients: Set<WebSocket> = new Set();
   private oledState: Map<number, OledDisplayState> = new Map();
   private lastPersistentText: string[] = [];
@@ -53,6 +56,9 @@ class MidiHandler {
     if (realDevice) {
       this.connectRealDevice(realDevice);
     }
+
+    // Connect to other MIDI devices for visual feedback only
+    this.connectOtherMidiDevices();
 
     // Listen for messages from virtual DAW input (from jam app - for GUI/SysEx)
     this.virtualDawIn.on('message', (_deltaTime: number, message: number[]) => {
@@ -150,6 +156,44 @@ class MidiHandler {
     this.realDawIn.ignoreTypes(false, false, false);
 
     console.log('✅ Bridge active: Real hardware ↔ Virtual ports');
+  }
+
+  private connectOtherMidiDevices() {
+    const inPorts = new midi.Input();
+    const otherDevices: { port: number, name: string }[] = [];
+
+    // Find other MIDI input devices (not Launchkey, not IAC, not VIRTUAL)
+    for (let i = 0; i < inPorts.getPortCount(); i++) {
+      const name = inPorts.getPortName(i);
+      const isLaunchkey = name.includes('Launchkey Mini MK4');
+      const isIAC = name.includes('IAC');
+      const isVirtual = name.includes('VIRTUAL');
+
+      if (!isLaunchkey && !isIAC && !isVirtual) {
+        otherDevices.push({ port: i, name });
+      }
+    }
+
+    inPorts.closePort();
+
+    if (otherDevices.length > 0) {
+      console.log(`🎛️  Found ${otherDevices.length} other MIDI device(s) - visual feedback only:`);
+
+      for (const device of otherDevices) {
+        const input = new midi.Input();
+        input.openPort(device.port);
+
+        // Listen for MIDI messages (visual feedback only - don't forward)
+        input.on('message', (_deltaTime: number, message: number[]) => {
+          // Only send to GUI for visual feedback, don't forward to virtual ports
+          this.handleIncomingMidi(message);
+        });
+        input.ignoreTypes(false, false, false);
+
+        this.otherMidiInputs.push(input);
+        console.log(`   - ${device.name}`);
+      }
+    }
   }
 
   addClient(ws: WebSocket) {
@@ -303,6 +347,12 @@ class MidiHandler {
     if (this.realMidiIn) this.realMidiIn.closePort();
     if (this.realDawOut) this.realDawOut.closePort();
     if (this.realDawIn) this.realDawIn.closePort();
+
+    // Close other MIDI device inputs
+    for (const input of this.otherMidiInputs) {
+      input.closePort();
+    }
+    this.otherMidiInputs = [];
 
     this.clients.clear();
   }
