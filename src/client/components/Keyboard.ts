@@ -15,40 +15,40 @@ export class Keyboard {
   private isDragging = false;
   private currentNote: number | null = null;
 
-  // Computer keyboard to MIDI note mapping
+  // Computer keyboard to MIDI note mapping (using key codes)
   private readonly computerKeyMap: Record<string, number> = {
     // White keys (QWERTY row)
-    'Tab': 48,      // C3
-    'q': 50, 'Q': 50,      // D3
-    'w': 52, 'W': 52,      // E3
-    'e': 53, 'E': 53,      // F3
-    'r': 55, 'R': 55,      // G3
-    't': 57, 'T': 57,      // A3
-    'y': 59, 'Y': 59,      // B3
-    'u': 60, 'U': 60,      // C4
-    'i': 62, 'I': 62,      // D4
-    'o': 64, 'O': 64,      // E4
-    'p': 65, 'P': 65,      // F4
-    '[': 67,        // G4
-    ']': 69,        // A4
-    '\\': 71,       // B4
+    'Tab': 48,         // C3
+    'KeyQ': 50,        // D3
+    'KeyW': 52,        // E3
+    'KeyE': 53,        // F3
+    'KeyR': 55,        // G3
+    'KeyT': 57,        // A3
+    'KeyY': 59,        // B3
+    'KeyU': 60,        // C4
+    'KeyI': 62,        // D4
+    'KeyO': 64,        // E4
+    'KeyP': 65,        // F4
+    'BracketLeft': 67, // G4
+    'BracketRight': 69,// A4
+    'Backslash': 71,   // B4
 
     // Black keys (Number row)
-    '1': 49,        // C#3
-    '2': 51,        // D#3
-    // 3 is unused (E-F gap)
-    '4': 54,        // F#3
-    '5': 56,        // G#3
-    '6': 58,        // A#3
-    // 7 is unused (B-C gap)
-    '8': 61,        // C#4
-    '9': 63,        // D#4
-    '-': 66,        // F#4
-    '=': 68,        // G#4
-    'Backspace': 70, // A#4 
+    'Digit1': 49,      // C#3
+    'Digit2': 51,      // D#3
+    // Digit3 is unused (E-F gap)
+    'Digit4': 54,      // F#3
+    'Digit5': 56,      // G#3
+    'Digit6': 58,      // A#3
+    // Digit7 is unused (B-C gap)
+    'Digit8': 61,      // C#4
+    'Digit9': 63,      // D#4
+    'Minus': 66,       // F#4
+    'Equal': 68,       // G#4
+    'Backspace': 70,   // A#4
   };
 
-  // Track which computer keys are currently pressed
+  // Track which computer key codes are currently pressed
   private pressedComputerKeys: Set<string> = new Set();
 
   constructor(container: HTMLElement, midi: MidiInterface) {
@@ -123,25 +123,25 @@ export class Keyboard {
       return;
     }
 
-    const key = e.key;
-    const midiNote = this.computerKeyMap[key];
+    const code = e.code;
+    const midiNote = this.computerKeyMap[code];
 
     // Check if this key is mapped and not already pressed
-    if (midiNote !== undefined && !this.pressedComputerKeys.has(key)) {
+    if (midiNote !== undefined && !this.pressedComputerKeys.has(code)) {
       e.preventDefault(); // Prevent default browser behavior
-      this.pressedComputerKeys.add(key);
+      this.pressedComputerKeys.add(code);
       this.handleNoteOn(midiNote);
     }
   }
 
   private handleComputerKeyUp(e: KeyboardEvent) {
-    const key = e.key;
-    const midiNote = this.computerKeyMap[key];
+    const code = e.code;
+    const midiNote = this.computerKeyMap[code];
 
     // Check if this key is mapped and was pressed
-    if (midiNote !== undefined && this.pressedComputerKeys.has(key)) {
+    if (midiNote !== undefined && this.pressedComputerKeys.has(code)) {
       e.preventDefault();
-      this.pressedComputerKeys.delete(key);
+      this.pressedComputerKeys.delete(code);
       this.handleNoteOff(midiNote);
     }
   }
