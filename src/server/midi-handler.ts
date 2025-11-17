@@ -16,41 +16,140 @@ interface OledDisplayState {
 }
 
 class MidiHandler {
-  private midiOut: midi.Output;
-  private midiIn: midi.Input;
-  private dawOut: midi.Output;
-  private dawIn: midi.Input;
+  // Virtual ports (always created)
+  private virtualMidiOut: midi.Output;
+  private virtualMidiIn: midi.Input;
+  private virtualDawOut: midi.Output;
+  private virtualDawIn: midi.Input;
+
+  // Real device ports (optional)
+  private realMidiOut: midi.Output | null = null;
+  private realMidiIn: midi.Input | null = null;
+  private realDawOut: midi.Output | null = null;
+  private realDawIn: midi.Input | null = null;
+
   private clients: Set<WebSocket> = new Set();
   private oledState: Map<number, OledDisplayState> = new Map();
   private lastPersistentText: string[] = [];
 
   constructor() {
-    // Create virtual MIDI ports (standard)
-    this.midiOut = new midi.Output();
-    this.midiOut.openVirtualPort('Launchkey Mini MK4 VIRTUAL MIDI Out');
+    // Always create virtual MIDI ports
+    this.virtualMidiOut = new midi.Output();
+    this.virtualMidiOut.openVirtualPort('Launchkey Mini MK4 VIRTUAL MIDI Out');
 
-    this.midiIn = new midi.Input();
-    this.midiIn.openVirtualPort('Launchkey Mini MK4 VIRTUAL MIDI In');
+    this.virtualMidiIn = new midi.Input();
+    this.virtualMidiIn.openVirtualPort('Launchkey Mini MK4 VIRTUAL MIDI In');
 
-    // Create virtual MIDI ports (DAW)
-    this.dawOut = new midi.Output();
-    this.dawOut.openVirtualPort('Launchkey Mini MK4 VIRTUAL DAW Out');
+    this.virtualDawOut = new midi.Output();
+    this.virtualDawOut.openVirtualPort('Launchkey Mini MK4 VIRTUAL DAW Out');
 
-    this.dawIn = new midi.Input();
-    this.dawIn.openVirtualPort('Launchkey Mini MK4 VIRTUAL DAW In');
+    this.virtualDawIn = new midi.Input();
+    this.virtualDawIn.openVirtualPort('Launchkey Mini MK4 VIRTUAL DAW In');
 
-    console.log('Virtual MIDI ports created:');
-    console.log('- Launchkey Mini MK4 VIRTUAL MIDI Out');
-    console.log('- Launchkey Mini MK4 VIRTUAL MIDI In');
-    console.log('- Launchkey Mini MK4 VIRTUAL DAW Out');
-    console.log('- Launchkey Mini MK4 VIRTUAL DAW In');
+    console.log('✅ Virtual MIDI ports created');
 
-    // Listen for SysEx messages on DAW input
-    this.dawIn.on('message', (_deltaTime: number, message: number[]) => {
+    // Try to find real hardware
+    const realDevice = this.findRealDevice();
+    if (realDevice) {
+      this.connectRealDevice(realDevice);
+    }
+
+    // Listen for messages from virtual DAW input (from jam app - for GUI/SysEx)
+    this.virtualDawIn.on('message', (_deltaTime: number, message: number[]) => {
+      // Forward to real device if connected (for OLED updates)
+      if (this.realDawOut) {
+        this.realDawOut.sendMessage(message);
+      }
+      // Also handle for GUI
       this.handleIncomingMidi(message);
     });
+    this.virtualDawIn.ignoreTypes(false, false, false);
 
-    this.dawIn.ignoreTypes(false, false, false); // Enable SysEx, timing, active sensing
+    // Listen for messages from virtual MIDI input (from jam app - for LED feedback)
+    this.virtualMidiIn.on('message', (_deltaTime: number, message: number[]) => {
+      // Forward to real device if connected (for pad LEDs)
+      if (this.realMidiOut) {
+        this.realMidiOut.sendMessage(message);
+      }
+    });
+    this.virtualMidiIn.ignoreTypes(false, false, false);
+  }
+
+  private findRealDevice() {
+    const outPorts = new midi.Output();
+    const inPorts = new midi.Input();
+
+    let midiOutPort = -1, midiInPort = -1, dawOutPort = -1, dawInPort = -1;
+    let midiOutName = '', midiInName = '', dawOutName = '', dawInName = '';
+
+    // Find real hardware ports (not VIRTUAL)
+    for (let i = 0; i < outPorts.getPortCount(); i++) {
+      const name = outPorts.getPortName(i);
+      if (name.includes('Launchkey Mini MK4') && !name.includes('VIRTUAL')) {
+        if (name.includes('MIDI In')) {
+          midiOutPort = i;
+          midiOutName = name;
+        }
+        if (name.includes('DAW In')) {
+          dawOutPort = i;
+          dawOutName = name;
+        }
+      }
+    }
+
+    for (let i = 0; i < inPorts.getPortCount(); i++) {
+      const name = inPorts.getPortName(i);
+      if (name.includes('Launchkey Mini MK4') && !name.includes('VIRTUAL')) {
+        if (name.includes('MIDI Out')) {
+          midiInPort = i;
+          midiInName = name;
+        }
+        if (name.includes('DAW Out')) {
+          dawInPort = i;
+          dawInName = name;
+        }
+      }
+    }
+
+    outPorts.closePort();
+    inPorts.closePort();
+
+    if (midiOutPort >= 0 && midiInPort >= 0 && dawOutPort >= 0 && dawInPort >= 0) {
+      return { midiOutPort, midiInPort, dawOutPort, dawInPort, midiOutName, midiInName, dawOutName, dawInName };
+    }
+    return null;
+  }
+
+  private connectRealDevice(device: { midiOutPort: number, midiInPort: number, dawOutPort: number, dawInPort: number, midiOutName: string, midiInName: string, dawOutName: string, dawInName: string }) {
+    console.log('🎹 Real hardware detected - setting up bridge');
+
+    // Connect to real device
+    this.realMidiOut = new midi.Output();
+    this.realMidiOut.openPort(device.midiOutPort);
+
+    this.realMidiIn = new midi.Input();
+    this.realMidiIn.openPort(device.midiInPort);
+
+    this.realDawOut = new midi.Output();
+    this.realDawOut.openPort(device.dawOutPort);
+
+    this.realDawIn = new midi.Input();
+    this.realDawIn.openPort(device.dawInPort);
+
+    // Bridge: Real device inputs → Virtual outputs (like GUI does)
+    this.realMidiIn.on('message', (_deltaTime: number, message: number[]) => {
+      this.virtualMidiOut.sendMessage(message);
+      this.handleIncomingMidi(message); // For GUI visual feedback
+    });
+    this.realMidiIn.ignoreTypes(false, false, false);
+
+    this.realDawIn.on('message', (_deltaTime: number, message: number[]) => {
+      this.virtualDawOut.sendMessage(message);
+      this.handleIncomingMidi(message); // For GUI visual feedback
+    });
+    this.realDawIn.ignoreTypes(false, false, false);
+
+    console.log('✅ Bridge active: Real hardware ↔ Virtual ports');
   }
 
   addClient(ws: WebSocket) {
@@ -79,32 +178,32 @@ class MidiHandler {
         case 'note-on':
           if (message.note !== undefined && message.velocity !== undefined) {
             const status = 0x90 | message.channel;
-            this.midiOut.sendMessage([status, message.note, message.velocity]);
-            console.log(`[MIDI] Note On  → Note: ${message.note}, Velocity: ${message.velocity}, Channel: ${message.channel}`);
+            this.virtualMidiOut.sendMessage([status, message.note, message.velocity]);
+            console.log(`[GUI→Virtual] Note On  → Note: ${message.note}, Velocity: ${message.velocity}, Channel: ${message.channel}`);
           }
           break;
 
         case 'note-off':
           if (message.note !== undefined) {
             const status = 0x80 | message.channel;
-            this.midiOut.sendMessage([status, message.note, 0]);
-            console.log(`[MIDI] Note Off → Note: ${message.note}, Channel: ${message.channel}`);
+            this.virtualMidiOut.sendMessage([status, message.note, 0]);
+            console.log(`[GUI→Virtual] Note Off → Note: ${message.note}, Channel: ${message.channel}`);
           }
           break;
 
         case 'cc':
           if (message.ccNumber !== undefined && message.value !== undefined) {
             const status = 0xB0 | message.channel;
-            this.dawOut.sendMessage([status, message.ccNumber, message.value]);
-            console.log(`[MIDI] CC (DAW) → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
+            this.virtualDawOut.sendMessage([status, message.ccNumber, message.value]);
+            console.log(`[GUI→Virtual] CC → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
           }
           break;
 
         case 'cc-standard':
           if (message.ccNumber !== undefined && message.value !== undefined) {
             const status = 0xB0 | message.channel;
-            this.midiOut.sendMessage([status, message.ccNumber, message.value]);
-            console.log(`[MIDI] CC (Std) → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
+            this.virtualMidiOut.sendMessage([status, message.ccNumber, message.value]);
+            console.log(`[GUI→Virtual] CC (Std) → CC: ${message.ccNumber}, Value: ${message.value}, Channel: ${message.channel}`);
           }
           break;
 
@@ -193,10 +292,18 @@ class MidiHandler {
   }
 
   close() {
-    this.midiOut.closePort();
-    this.midiIn.closePort();
-    this.dawOut.closePort();
-    this.dawIn.closePort();
+    // Close virtual ports
+    this.virtualMidiOut.closePort();
+    this.virtualMidiIn.closePort();
+    this.virtualDawOut.closePort();
+    this.virtualDawIn.closePort();
+
+    // Close real device ports if connected
+    if (this.realMidiOut) this.realMidiOut.closePort();
+    if (this.realMidiIn) this.realMidiIn.closePort();
+    if (this.realDawOut) this.realDawOut.closePort();
+    if (this.realDawIn) this.realDawIn.closePort();
+
     this.clients.clear();
   }
 }
