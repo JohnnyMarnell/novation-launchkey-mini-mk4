@@ -27,23 +27,23 @@ class MidiHandler {
   constructor() {
     // Create virtual MIDI ports (standard)
     this.midiOut = new midi.Output();
-    this.midiOut.openVirtualPort('Launchkey Mini MK4 MIDI Out');
+    this.midiOut.openVirtualPort('Launchkey Mini MK4 VIRTUAL MIDI Out');
 
     this.midiIn = new midi.Input();
-    this.midiIn.openVirtualPort('Launchkey Mini MK4 MIDI In');
+    this.midiIn.openVirtualPort('Launchkey Mini MK4 VIRTUAL MIDI In');
 
     // Create virtual MIDI ports (DAW)
     this.dawOut = new midi.Output();
-    this.dawOut.openVirtualPort('Launchkey Mini MK4 DAW Out');
+    this.dawOut.openVirtualPort('Launchkey Mini MK4 VIRTUAL DAW Out');
 
     this.dawIn = new midi.Input();
-    this.dawIn.openVirtualPort('Launchkey Mini MK4 DAW In');
+    this.dawIn.openVirtualPort('Launchkey Mini MK4 VIRTUAL DAW In');
 
     console.log('Virtual MIDI ports created:');
-    console.log('- Launchkey Mini MK4 MIDI Out');
-    console.log('- Launchkey Mini MK4 MIDI In');
-    console.log('- Launchkey Mini MK4 DAW Out');
-    console.log('- Launchkey Mini MK4 DAW In');
+    console.log('- Launchkey Mini MK4 VIRTUAL MIDI Out');
+    console.log('- Launchkey Mini MK4 VIRTUAL MIDI In');
+    console.log('- Launchkey Mini MK4 VIRTUAL DAW Out');
+    console.log('- Launchkey Mini MK4 VIRTUAL DAW In');
 
     // Listen for SysEx messages on DAW input
     this.dawIn.on('message', (_deltaTime: number, message: number[]) => {
