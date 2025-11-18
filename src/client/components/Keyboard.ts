@@ -15,6 +15,9 @@ export class Keyboard {
   private isDragging = false;
   private currentNote: number | null = null;
 
+  // Enable/disable state for focused keyboard input
+  private enabled = true;
+
   // Computer keyboard to MIDI note mapping (using key codes)
   private readonly computerKeyMap: Record<string, number> = {
     // White keys (QWERTY row)
@@ -156,8 +159,8 @@ export class Keyboard {
   }
 
   private handleComputerKeyDown(e: KeyboardEvent) {
-    // Ignore if user is typing in an input field
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+    // Ignore if disabled (global mode active) or user is typing in an input field
+    if (!this.enabled || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       return;
     }
 
@@ -173,6 +176,11 @@ export class Keyboard {
   }
 
   private handleComputerKeyUp(e: KeyboardEvent) {
+    // Ignore if disabled (global mode active)
+    if (!this.enabled) {
+      return;
+    }
+
     const code = e.code;
     const midiNote = this.computerKeyMap[code];
 
@@ -227,6 +235,80 @@ export class Keyboard {
       key.classList.remove('active');
       this.midi.sendNoteOff(note, this.keyChannel);
       console.log(`Note Off: ${note}`);
+    }
+  }
+
+  // Public method to enable/disable focused keyboard input
+  public setEnabled(enabled: boolean) {
+    this.enabled = enabled;
+    // Clear any pressed keys when disabling
+    if (!enabled) {
+      this.pressedComputerKeys.forEach(code => {
+        const midiNote = this.computerKeyMap[code];
+        if (midiNote !== undefined) {
+          this.handleNoteOff(midiNote);
+        }
+      });
+      this.pressedComputerKeys.clear();
+    }
+    console.log(`Keyboard input ${enabled ? 'enabled' : 'disabled'}`);
+  }
+
+  // Map global keyboard event names to browser KeyboardEvent codes
+  private globalKeyNameToCode(keyName: string): string | null {
+    // node-global-key-listener uses different key names
+    const keyMap: Record<string, string> = {
+      'TAB': 'Tab',
+      'Q': 'KeyQ',
+      'W': 'KeyW',
+      'E': 'KeyE',
+      'R': 'KeyR',
+      'T': 'KeyT',
+      'Y': 'KeyY',
+      'U': 'KeyU',
+      'I': 'KeyI',
+      'O': 'KeyO',
+      'P': 'KeyP',
+      '[': 'BracketLeft',
+      ']': 'BracketRight',
+      '\\': 'Backslash',
+      '1': 'Digit1',
+      '2': 'Digit2',
+      '4': 'Digit4',
+      '5': 'Digit5',
+      '6': 'Digit6',
+      '8': 'Digit8',
+      '9': 'Digit9',
+      '-': 'Minus',
+      '=': 'Equal',
+      'BACKSPACE': 'Backspace',
+    };
+    return keyMap[keyName] || null;
+  }
+
+  // Public method to handle global keyboard events
+  public handleGlobalKeyEvent(event: { state: string; name: string; rawKey?: any }) {
+    if (!this.enabled) {
+      // Only process global events when focused keyboard is disabled
+      const code = this.globalKeyNameToCode(event.name);
+      if (!code) return;
+
+      const midiNote = this.computerKeyMap[code];
+      if (midiNote === undefined) return;
+
+      if (event.state === 'DOWN') {
+        // Check if not already pressed
+        if (!this.pressedComputerKeys.has(code)) {
+          this.pressedComputerKeys.add(code);
+          this.handleNoteOn(midiNote);
+        }
+      } else if (event.state === 'UP') {
+        // Check if was pressed
+        if (this.pressedComputerKeys.has(code)) {
+          this.pressedComputerKeys.delete(code);
+          this.handleNoteOff(midiNote);
+        }
+      }
     }
   }
 }

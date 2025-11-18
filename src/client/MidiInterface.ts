@@ -77,6 +77,10 @@ class MidiInterface {
     this.send({ type: 'pitch-bend', lsb, msb, channel });
   }
 
+  sendRaw(message: any) {
+    this.send(message);
+  }
+
   disconnect() {
     this.ws?.close();
     this.ws = null;

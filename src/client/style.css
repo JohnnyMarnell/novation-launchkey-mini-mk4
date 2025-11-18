@@ -190,6 +190,49 @@ body {
   color: #000;
 }
 
+.global-toggle {
+  width: 50px;
+  height: 30px;
+  background: var(--bg-medium);
+  border: 2px solid var(--bg-light);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+}
+
+.global-toggle:hover {
+  background: #4a4a4a;
+  border-color: #5a5a5a;
+}
+
+.global-toggle.active {
+  background: #2196f3;
+  border-color: #42a5f5;
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+.global-toggle:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.global-label {
+  font-size: 0.5rem;
+  font-weight: bold;
+  color: var(--text-light);
+  text-align: center;
+  line-height: 1;
+}
+
+.global-toggle.active .global-label {
+  color: #000;
+}
+
 .oled-screen {
   background: #000;
   border: 3px solid var(--bg-medium);

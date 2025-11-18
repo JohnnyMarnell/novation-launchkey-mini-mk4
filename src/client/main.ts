@@ -11,6 +11,8 @@ class App {
   private midi: MidiInterface;
   private pressedNumpadKeys: Set<string> = new Set();
   private sustainPedalOn: boolean = false;
+  private keyboard: Keyboard | null = null;
+  private globalKeyboardEnabled: boolean = false;
 
   constructor() {
     console.log('Initializing Launchkey Mini MK4 GUI...');
@@ -34,7 +36,7 @@ class App {
     // Keyboard still needs a container since it creates keys dynamically
     const keyboardSection = document.getElementById('keyboard-section');
     if (keyboardSection) {
-      new Keyboard(keyboardSection, this.midi);
+      this.keyboard = new Keyboard(keyboardSection, this.midi);
     } else {
       console.warn('Keyboard section not found, keyboard not initialized');
     }
@@ -43,6 +45,9 @@ class App {
     this.midi.onOledUpdate((lines, isPersistent) => {
       oled.updateDisplay(lines, isPersistent);
     });
+
+    // Setup global keyboard listener toggle
+    this.setupGlobalKeyboardToggle();
 
     // Numpad sustain pedal functionality
     const sustainIndicator = document.getElementById('sustain-indicator');
@@ -105,6 +110,66 @@ class App {
     });
 
     console.log('Launchkey Mini MK4 GUI ready!');
+  }
+
+  private setupGlobalKeyboardToggle() {
+    const globalToggle = document.getElementById('global-toggle') as HTMLButtonElement;
+    if (!globalToggle) {
+      console.warn('Global toggle button not found');
+      return;
+    }
+
+    // Initially disable until we know if global mode is available
+    globalToggle.disabled = true;
+
+    // Listen for server messages
+    this.midi.addListener((message: any) => {
+      if (message.type === 'connected' && message.globalModeAvailable !== undefined) {
+        // Enable/disable the button based on server availability
+        globalToggle.disabled = !message.globalModeAvailable;
+        if (!message.globalModeAvailable) {
+          globalToggle.title = 'Global mode not available. Start server with --global flag.';
+        } else {
+          globalToggle.title = 'Toggle global keyboard listener';
+        }
+      } else if (message.type === 'global-keyboard-status') {
+        // Update toggle state
+        this.globalKeyboardEnabled = message.enabled;
+        if (message.enabled) {
+          globalToggle.classList.add('active');
+          // Disable focused keyboard input to prevent doubles
+          if (this.keyboard) {
+            this.keyboard.setEnabled(false);
+          }
+        } else {
+          globalToggle.classList.remove('active');
+          // Re-enable focused keyboard input
+          if (this.keyboard) {
+            this.keyboard.setEnabled(true);
+          }
+        }
+      } else if (message.type === 'global-keyboard-event') {
+        // Forward global keyboard events to the keyboard component
+        if (this.keyboard && this.globalKeyboardEnabled) {
+          this.keyboard.handleGlobalKeyEvent(message.event);
+        }
+      } else if (message.type === 'global-keyboard-error') {
+        console.error('Global keyboard error:', message.message);
+        alert(message.message);
+      }
+    });
+
+    // Toggle handler
+    globalToggle.addEventListener('click', () => {
+      if (globalToggle.disabled) return;
+
+      const newState = !this.globalKeyboardEnabled;
+      // Send toggle request to server
+      this.midi.sendRaw({
+        type: 'toggle-global-keyboard',
+        enabled: newState
+      });
+    });
   }
 }
 
