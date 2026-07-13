@@ -14,14 +14,8 @@ dist-ssr
 dist-electron
 *.local
 
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
+# Bun
+bun-debug.log*
 
 # Electron build output
 release

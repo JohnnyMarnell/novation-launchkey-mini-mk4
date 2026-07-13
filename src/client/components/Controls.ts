@@ -105,7 +105,7 @@ export class Controls {
     }
   }
 
-  private attachButtonListener(elementId: string, type: string) {
+  private attachButtonListener(elementId: string, type: Button) {
     const button = document.getElementById(elementId);
     if (!button) {
       console.warn(`Button element with id '${elementId}' not found`);
@@ -152,7 +152,7 @@ export class Controls {
     });
   }
 
-  private handleButtonPress(type: string) {
+  private handleButtonPress(type: Button) {
     // Track that this button is pressed
     this.pressedButtons.add(type);
 
@@ -165,7 +165,7 @@ export class Controls {
     }
   }
 
-  private handleButtonRelease(type: string) {
+  private handleButtonRelease(type: Button) {
     // Only send release if button was actually pressed
     if (!this.pressedButtons.has(type)) {
       return;

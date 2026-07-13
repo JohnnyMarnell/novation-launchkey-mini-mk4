@@ -6,16 +6,16 @@ A web-based MIDI controller that simulates the Novation Launchkey Mini MK4.
 
 ```bash
 # Install dependencies
-yarn install
+bun install
 
 # Start server with HMR (http://localhost:5173)
-yarn dev
+bun run dev
 
 # Build for production (port 3000)
-yarn build
+bun run build
 
 # Run production build
-yarn start
+bun run start
 ```
 
 ## Controls

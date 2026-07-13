@@ -4,8 +4,9 @@
   "description": "Hono Web App for Novation Launchkey Mini MK4",
   "type": "module",
   "main": "dist/server.js",
+  "packageManager": "bun@1.3.14",
   "scripts": {
-    "dev": "concurrently 'yarn dev:server' 'yarn dev:client' -n server,vite -c cyan,green",
+    "dev": "concurrently 'bun run dev:server' 'bun run dev:client' -n server,vite -c cyan,green",
     "dev:server": "tsx --watch src/server/server.ts",
     "dev:client": "vite",
     "build": "tsc && vite build",
