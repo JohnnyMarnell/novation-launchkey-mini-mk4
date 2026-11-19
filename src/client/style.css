@@ -40,7 +40,8 @@ body {
   max-width: 1600px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  /* The screen's column is fixed: sized by its text, it resized the whole device as the text changed */
+  grid-template-columns: auto 17rem 1fr auto;
   grid-template-rows: minmax(300px, 1fr) auto;
   gap: 1rem;
   align-items: stretch;
@@ -234,10 +235,12 @@ body {
 }
 
 .oled-screen {
+  min-width: 0;
   background: #000;
   border: 3px solid var(--bg-medium);
   border-radius: 8px;
-  padding: 0.75rem;
+  /* Three lines, as the device's arrangement 2 has, without clipping either end */
+  padding: 0.35rem 0.6rem;
   height: 80px;
   width: 100%;
   display: flex;
@@ -250,15 +253,18 @@ body {
 .display-content {
   color: #fff;
   text-align: center;
-  white-space: nowrap;
   overflow: hidden;
-  max-width: 100%;
+  width: 100%;
 }
 
+/* A fixed-pitch face and kept spaces, so text padded to a width stays put as it
+   changes; a line too long for the screen is cut, never widening it */
 .mode-text {
-  font-size: 0.9rem;
-  font-weight: bold;
-  white-space: nowrap;
+  display: block;
+  font: bold 0.85rem/1.2 ui-monospace, 'DejaVu Sans Mono', Menlo, monospace;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .keyboard-icon {
@@ -539,3 +545,7 @@ body {
 .pad-pulse { animation: pad-pulse 1s ease-in-out infinite; }
 @keyframes pad-flash { 50% { filter: brightness(0.25); } }
 @keyframes pad-pulse { 50% { filter: brightness(0.3); } }
+
+/* A finger held on a button is a press, not the start of a scroll or zoom:
+   without this the browser cancels it, and ▸ held for a combo lets go */
+.btn, .pad { touch-action: none; }
