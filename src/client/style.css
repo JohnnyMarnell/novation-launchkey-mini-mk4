@@ -257,11 +257,17 @@ body {
   width: 100%;
 }
 
-/* A fixed-pitch face and kept spaces, so text padded to a width stays put as it
-   changes; a line too long for the screen is cut, never widening it */
+/* The device's screen font is proportional, thin and cool white. Spaces are
+   kept, so text a DAW pads to a steady width stays put, and digits are all one
+   width, as a pixel font's are; a line too long for the screen is cut, never
+   widening it */
 .mode-text {
   display: block;
-  font: bold 0.85rem/1.2 ui-monospace, 'DejaVu Sans Mono', Menlo, monospace;
+  font: 500 0.84rem/1.2 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  color: #d8e3ff;
+  text-shadow: 0 0 4px rgba(170, 200, 255, 0.45);
   white-space: pre;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -289,7 +295,11 @@ body {
 }
 
 .pads-grid {
-  gap: 0.4rem;
+  /* Room above and below for the mode names printed on the panel, as the device has */
+  gap: 1.25rem 0.4rem;
+  padding: 0.85rem 0;
+  align-content: center;
+  isolation: isolate;
   grid-auto-rows: 1fr;
   flex: 1;
   height: 100%;
@@ -379,37 +389,73 @@ body {
 }
 
 .pad {
+  --led: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
+  /* Square, as on the device, as big as the row allows */
+  aspect-ratio: 1;
+  align-self: center;
+  justify-self: center;
+  width: 100%;
+  max-height: 100%;
   cursor: pointer;
   position: relative;
-  /* An unlit LED is dark; the DAW lights it (Pads.ts). Short, so the DAW's own fades lead */
-  transition: background-color 60ms linear, box-shadow 60ms linear, transform 0.2s, filter 0.2s;
-  background: #2a2e35;
-  color: rgba(255, 255, 255, 0.55);
-  font-weight: 600;
+  /* Frosted silicone over an unlit LED */
+  background: linear-gradient(180deg, #3a3e46 0%, #2c3037 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -2px 4px rgba(0, 0, 0, 0.35);
+  color: transparent;
+  transition: transform 0.12s, filter 0.12s;
+}
+
+/* Lit: the LED's colour diffused through the pad — a paler core, the colour at
+   the rim, and a bloom on the panel around it. Short fades: the DAW leads them */
+.pad.lit {
+  /* No white in the core: a dim LED stays a dim colour, not a grey pearl */
+  background: radial-gradient(circle at 50% 45%,
+    var(--led) 0%,
+    var(--led) 50%,
+    color-mix(in srgb, var(--led) 72%, black) 100%);
+  box-shadow: inset 0 0 8px color-mix(in srgb, var(--led) 60%, transparent), 0 0 10px 1px color-mix(in srgb, var(--led) 65%, transparent);
+}
+
+.pad.lit::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 14px;
+  background: var(--led);
+  filter: blur(14px);
+  opacity: 0.45;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .pad:hover {
-  transform: scale(1.05);
-  filter: brightness(1.2);
+  filter: brightness(1.12);
 }
 
 .pad:active,
 .pad-active {
-  transform: scale(0.95);
-  filter: brightness(1.5);
-  box-shadow: 0 0 20px rgba(0, 206, 209, 0.8);
+  transform: scale(0.96);
+  filter: brightness(1.25);
 }
 
+/* The mode each pad selects with Shift, printed on the panel: above the top
+   row, below the bottom one — never on the pad itself */
 .pad-label {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  right: 0.5rem;
+  left: -0.2rem;
+  right: -0.2rem;
   text-align: center;
-  font-size: 0.65rem;
+  font-size: 0.56rem;
+  font-weight: 400;
+  color: #8a8f98;
+  white-space: nowrap;
+  pointer-events: none;
 }
+
+.pads-grid .pad:nth-child(-n + 8) .pad-label { bottom: calc(100% + 0.3rem); }
+.pads-grid .pad:nth-child(n + 9) .pad-label { top: calc(100% + 0.3rem); }
 
 /* Branding */
 .branding {

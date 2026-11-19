@@ -59,9 +59,10 @@ export class OledScreen {
 
   private formatLines(lines: string[]): string {
     const text = (line: string) => [...(line || '')].map(ch => OledScreen.GLYPHS[ch] ?? ch).join('');
+    // One block per line: a <br> between them as well doubled every gap and pushed the first and last lines off the screen
     return `<div class="display-content">${lines.map(line =>
       `<span class="mode-text">${text(line)}</span>`
-    ).join('<br>')}</div>`;
+    ).join('')}</div>`;
   }
 
   /** The DAW cancelled the temporary display: back to the stationary one now */

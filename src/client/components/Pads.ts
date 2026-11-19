@@ -62,8 +62,8 @@ export class Pads {
     const pad = this.pads[index];
     if (!pad) return;
     const dark = colour === PALETTE[0] || colour === 'rgb(0,0,0)';
-    pad.style.backgroundColor = dark ? '' : colour;
-    pad.style.boxShadow = dark ? '' : `0 0 14px 2px ${colour}`;
+    pad.style.setProperty('--led', dark ? 'transparent' : colour);
+    pad.classList.toggle('lit', !dark);
     pad.dataset.led = dark ? '' : colour;
     pad.classList.toggle('pad-flash', mode === 'flash');
     pad.classList.toggle('pad-pulse', mode === 'pulse');
