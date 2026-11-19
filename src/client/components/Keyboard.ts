@@ -65,7 +65,8 @@ export class Keyboard {
   private setupMidiListener() {
     // Listen for incoming MIDI from any device to update GUI
     this.midi.addListener((event: any) => {
-      if (event.type === 'midi') {
+      // The DAW's own notes are LED colours (Pads.ts), not keys being played
+      if (event.type === 'midi' && event.source !== 'daw') {
         const {midiType, channel, data, value} = event;
 
         const note = data;

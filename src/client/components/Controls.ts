@@ -35,6 +35,7 @@ export class Controls {
     'F': 'func',
     'ArrowUp': 'navUp',
     'ArrowDown': 'navDown',
+    'ArrowRight': 'right',
   };
 
   constructor(midi: MidiInterface) {
@@ -112,24 +113,21 @@ export class Controls {
       return;
     }
 
-    button.addEventListener('mousedown', () => this.handleButtonPress(type));
-    button.addEventListener('mouseup', () => this.handleButtonRelease(type));
-    // Only release if button was actually pressed (not just hovering)
-    button.addEventListener('mouseleave', () => {
-      if (this.pressedButtons.has(type)) {
-        this.handleButtonRelease(type);
-      }
-    });
-
-    // Touch support
-    button.addEventListener('touchstart', (e) => {
+    // Pointer events, so a finger works like the mouse — and two fingers hold ▸
+    // while tapping Func, which no single mouse pointer can
+    button.addEventListener('pointerdown', e => {
       e.preventDefault();
+      button.setPointerCapture?.(e.pointerId);
+      button.classList.add('active');
       this.handleButtonPress(type);
     });
-    button.addEventListener('touchend', (e) => {
-      e.preventDefault();
+    const release = () => {
+      button.classList.remove('active');
       this.handleButtonRelease(type);
-    });
+    };
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    // Captured, so the release comes here wherever the pointer went: no mouseleave guess
   }
 
   private initializeStrip(elementId: string) {

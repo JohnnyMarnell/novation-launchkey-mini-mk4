@@ -3,6 +3,9 @@ import type { WebSocket } from 'ws';
 
 interface MidiMessage {
   type: 'note-on' | 'note-off' | 'cc' | 'cc-standard' | 'pitch-bend';
+  // Which of the device's two ports it leaves on. In DAW mode the pads report
+  // on the DAW port, as the buttons do; the keys and wheels are on MIDI.
+  port?: 'daw' | 'midi';
   note?: number;
   velocity?: number;
   channel: number;
@@ -69,7 +72,7 @@ class MidiHandler {
         this.realDawOut.sendMessage(message);
       }
       // Also handle for GUI
-      this.handleIncomingMidi(message);
+      this.handleIncomingMidi(message, 'daw');
     });
     this.virtualDawIn.ignoreTypes(false, false, false);
 
@@ -224,7 +227,7 @@ class MidiHandler {
         case 'note-on':
           if (message.note !== undefined && message.velocity !== undefined) {
             const status = 0x90 | message.channel;
-            this.virtualMidiOut.sendMessage([status, message.note, message.velocity]);
+            this.portOut(message).sendMessage([status, message.note, message.velocity]);
             console.log(`[GUI→Virtual] Note On  → Note: ${message.note}, Velocity: ${message.velocity}, Channel: ${message.channel}`);
           }
           break;
@@ -232,7 +235,7 @@ class MidiHandler {
         case 'note-off':
           if (message.note !== undefined) {
             const status = 0x80 | message.channel;
-            this.virtualMidiOut.sendMessage([status, message.note, 0]);
+            this.portOut(message).sendMessage([status, message.note, 0]);
             console.log(`[GUI→Virtual] Note Off → Note: ${message.note}, Channel: ${message.channel}`);
           }
           break;
@@ -270,7 +273,13 @@ class MidiHandler {
     }
   }
 
-  private handleIncomingMidi(message: number[]) {
+  private portOut(message: MidiMessage): midi.Output {
+    return message.port === 'daw' ? this.virtualDawOut : this.virtualMidiOut;
+  }
+
+  // `source` 'daw' is the DAW talking to the device (LEDs, the screen); anything
+  // else is a controller being watched, which must never light the pads
+  private handleIncomingMidi(message: number[], source: 'daw' | 'device' = 'device') {
     // Check for SysEx messages (F0 ... F7)
     if (message[0] === 0xF0 && message[message.length - 1] === 0xF7) {
       this.parseSysEx(message);
@@ -278,8 +287,8 @@ class MidiHandler {
       const [status, data, value] = message
       const channel = (status & 0x0F);
       const type = status & 0xF0;
-      console.log(`[DAW midi] type=0x${type.toString(16).toUpperCase()}, channel=${channel}, data=${data}, value=${value}`);
-      this.broadcast({type: 'midi', midiType: type, channel, data, value })
+      if (source !== 'daw') console.log(`[DAW midi] type=0x${type.toString(16).toUpperCase()}, channel=${channel}, data=${data}, value=${value}`);
+      this.broadcast({type: 'midi', midiType: type, channel, data, value, source })
     }
   }
 
@@ -294,7 +303,11 @@ class MidiHandler {
 
     const command = payload[0];
 
-    if (command === 0x06) {
+    if (command === 0x01 && payload[1] === 0x43 && payload.length >= 6) {
+      // RGB colour: 01 43 <pad note> R G B, each 0-127
+      const [, , note, r, g, b] = payload;
+      this.broadcast({ type: 'pad-rgb', note, rgb: [r, g, b].map(v => Math.round(v * 255 / 127)) });
+    } else if (command === 0x06) {
       // Set field: 06 <target> <field> ...ASCII bytes
       const target = payload[1];
       const field = payload[2];
@@ -308,6 +321,12 @@ class MidiHandler {
       state.fields[field] = text;
 
       // console.log(`[OLED] Target: 0x${target.toString(16)}, Field: ${field}, Text: "${text}"`);
+    } else if (command === 0x04 && payload.length >= 3 && payload[2] === 0x00) {
+      // Cancel: the temporary display goes back to the stationary one
+      this.broadcast({ type: 'oled-cancel', target: payload[1] });
+    } else if (command === 0x04 && payload.length >= 3 && payload[2] !== 0x7F) {
+      // A new arrangement starts from empty fields: three lines then two must not keep the third
+      this.oledState.set(payload[1], { fields: [], target: payload[1] });
     } else if (command === 0x04 && payload.length >= 3 && payload[2] === 0x7F) {
       // Trigger display: 04 <target> 7F
       const target = payload[1];

@@ -1,12 +1,12 @@
 :root {
-  --bg-dark: #1a1a1a;
-  --bg-medium: #2a2a2a;
-  --bg-light: #3a3a3a;
-  --text-light: #cccccc;
-  --text-dim: #888888;
-  --pad-cyan: #00ced1;
-  --btn-play: #00ff00;
-  --btn-record: #ff1744;
+  --panel: #1b1c1f;
+  --well: #121315;
+  --btn: #2d2f34;
+  --btn-hover: #383a40;
+  --text: #d4d6db;
+  --text-dim: #8a8f98;
+  --play: #3be07a;
+  --record: #ff4d6a;
 }
 
 * {
@@ -17,518 +17,393 @@
 
 body {
   background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-  padding: 1rem;
-}
-
-.main-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
   align-items: center;
-  max-width: 100%;
+  justify-content: center;
+  padding: clamp(6px, 2vw, 24px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  color: var(--text);
 }
 
-.keyboard-container {
-  background: var(--bg-dark);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  max-width: 1600px;
+/* ── Layout ───────────────────────────────────────────────────────────────
+   One device, as wide as the window allows (up to a desk's worth), and every
+   size inside it a share of that width (cqi), so it scales as one piece rather
+   than in steps. The controller is one grid laid out as the Mini MK4 is:
+
+     strips │ screen  │ extras │ knobs ×8    │ ▲ ▼
+            │ buttons │ track  │ pads 2 × 8  │ ▶ Func
+
+   "extras" is where the device has Arp and Scale; here, Global and Sus. */
+
+.device {
+  /* As wide as the window allows — and no wider than its height allows: the
+     wide layout is at most about twice as wide as it is tall, so a phone on its
+     side gets the whole device on screen rather than a scroll */
+  width: min(100%, 1500px, calc((100dvh - 2 * clamp(6px, 2vw, 24px)) * 1.95));
+  container-type: inline-size;
+  background: var(--panel);
+  border-radius: clamp(8px, 1.2cqi, 18px);
+  padding: clamp(8px, 1.6cqi, 26px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-  display: grid;
-  grid-template-columns: auto auto 1fr auto;
-  grid-template-rows: minmax(300px, 1fr) auto;
-  gap: 1rem;
-  align-items: stretch;
-  flex-shrink: 0;
-}
-
-/* Flex columns with full height */
-.wheels-section,
-.right-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  height: 100%;
+  gap: clamp(8px, 1.4cqi, 22px);
 }
 
-.wheels-section {
-  flex-direction: row;
-  gap: 0.75rem;
-}
-
-.display-area {
+.controller {
+  --gap: clamp(4px, 0.55cqi, 9px);
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: auto 1fr 1fr;
-  gap: 0.4rem;
-  height: 100%;
-  align-items: stretch;
+  grid-template-columns: 1.05fr 2.6fr 0.75fr 8fr 0.75fr;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "strips oled  extras knobs nav-top"
+    "strips btns  track  pads  nav-bottom"
+    "brand  brand .      .     .";
+  column-gap: clamp(6px, 1cqi, 16px);
+  row-gap: var(--gap);
+  font-size: clamp(10px, 1.05cqi, 15px);
 }
 
-.main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  height: 100%;
+.strips      { grid-area: strips; }
+.oled-screen { grid-area: oled; }
+.btn-block   { grid-area: btns; }
+.extras      { grid-area: extras; }
+.track       { grid-area: track; }
+.knobs       { grid-area: knobs; }
+.pads-grid   { grid-area: pads; }
+.nav-top     { grid-area: nav-top; }
+.nav-bottom  { grid-area: nav-bottom; }
+.branding    { grid-area: brand; }
+
+.btn-block, .extras, .track, .nav-top, .nav-bottom {
+  display: grid;
+  gap: var(--gap);
+}
+.btn-block { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); }
+/* Beside the pads, the arrows sit level with the pad rows */
+.track, .nav-bottom { grid-template-rows: 1fr 1fr; padding: 1.35em 0; }
+
+/* A narrow window held upright — a tablet or a phone in portrait — or any
+   very narrow one: the left-hand panel above, the knobs and pads across the
+   whole width below; the pads are the thing to hit. A phone on its side keeps
+   the wide layout, which is what fits its height */
+@media (orientation: portrait) {
+  @container (max-width: 760px) {
+    .controller {
+      grid-template-columns: 0.9fr 2.6fr 0.9fr;
+      grid-template-areas:
+        "strips oled  extras"
+        "strips btns  track"
+        "knobs  knobs nav-top"
+        "pads   pads  nav-bottom";
+      font-size: clamp(11px, 2.6cqi, 15px);
+    }
+    .branding { display: none; }
+    .btn-block { grid-template-rows: repeat(3, minmax(2.4em, 1fr)); }
+    .track { padding: 0; }
+    /* Upright there is height to spare: bigger knobs to grab, deeper keys */
+    .knob-visual { width: min(82%, 3.6em); }
+    .keyboard { height: clamp(110px, 32cqi, 260px); }
+  }
+}
+@container (max-width: 560px) {
+  @media all {
+    .controller {
+      grid-template-columns: 0.9fr 2.6fr 0.9fr;
+      grid-template-areas:
+        "strips oled  extras"
+        "strips btns  track"
+        "knobs  knobs nav-top"
+        "pads   pads  nav-bottom";
+      font-size: clamp(11px, 2.6cqi, 15px);
+    }
+    .branding { display: none; }
+    .btn-block { grid-template-rows: repeat(3, minmax(2.4em, 1fr)); }
+    .track { padding: 0; }
+    /* Upright there is height to spare: bigger knobs to grab, deeper keys */
+    .knob-visual { width: min(82%, 3.6em); }
+    .keyboard { height: clamp(110px, 32cqi, 260px); }
+  }
 }
 
-/* Base button styles */
+/* A phone: the mode names under and over the pads would be stubs ("Custo…");
+   the pads matter more than their Shift labels */
+@container (max-width: 520px) {
+  .pad-label { display: none; }
+  .pads-grid { gap: var(--gap); padding: var(--gap) 0; }
+  .nav-bottom { padding: var(--gap) 0; }
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
 .btn {
-  padding: 0.5rem;
-  background: var(--bg-light);
+  min-height: 0;
+  min-width: 0;
+  padding: 0.3em 0.4em;
+  background: var(--btn);
+  color: var(--text);
   border: none;
-  color: var(--text-light);
-  border-radius: 6px;
+  border-radius: 0.45em;
+  font: inherit;
+  font-size: 0.9em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 3px rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.12s, transform 0.08s;
+  user-select: none;
 }
+.btn:hover { background: var(--btn-hover); }
+.btn:active, .btn.active { transform: scale(0.95); filter: brightness(0.85); }
+.btn-play { color: var(--play); }
+.btn-record { color: var(--record); }
 
-.btn:hover,
-.wheel-pad:hover {
-  background: #4a4a4a;
+.global-toggle.active { background: #2f80ed; color: #fff; }
+.global-toggle:disabled { opacity: 0.35; cursor: not-allowed; }
+.sustain-indicator.active { background: #ff9800; color: #111; }
+
+/* ── Pitch and modulation strips ─────────────────────────────────────────── */
+
+.strips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
 }
-
-.btn:active,
-.btn.active {
-  transform: scale(0.95);
-  filter: brightness(0.8);
-}
-
-.btn-small,
-.btn-icon {
-  font-size: 0.8rem;
-  border-radius: 4px;
-}
-
-.nav-btn {
-  flex: 1;
-  font-size: 0.75rem;
-  min-height: 0;
-}
-
-.btn-play {
-  background: #2a4a2a;
-  color: var(--btn-play);
-}
-
-.btn-play:active,
-.btn-play.active {
-  background: #3a5a3a;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-}
-
-.btn-record {
-  background: #4a2a2a;
-  color: var(--btn-record);
-}
-
-.btn-record:active,
-.btn-record.active {
-  background: #5a3a3a;
-  box-shadow: 0 0 10px rgba(255, 23, 68, 0.3);
-}
-
 .wheel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
+  align-items: stretch;
+  gap: 0.35em;
+  min-width: 0;
 }
-
 .wheel-pad {
-  width: 50px;
   flex: 1;
-  background: var(--bg-light);
-  border: 2px solid var(--bg-medium);
-  border-radius: 8px;
+  min-height: 6em;
+  background: linear-gradient(180deg, #26282d, #1e2024);
+  border: 1px solid #34363c;
+  border-radius: 0.5em;
   cursor: pointer;
-  transition: background 0.2s;
+  touch-action: none;
 }
+.wheel-pad:hover { background: linear-gradient(180deg, #2b2d33, #222428); }
 
-.sustain-indicator {
-  width: 50px;
-  height: 30px;
-  background: var(--bg-medium);
-  border: 2px solid var(--bg-light);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  cursor: pointer;
-  user-select: none;
-}
-
-.sustain-indicator:hover {
-  background: #4a4a4a;
-  border-color: #5a5a5a;
-}
-
-.sustain-indicator.active {
-  background: #ff9800;
-  border-color: #ffa726;
-  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
-}
-
-.sus-label {
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: var(--text-light);
-}
-
-.sustain-indicator.active .sus-label {
-  color: #000;
-}
-
-.global-toggle {
-  width: 50px;
-  height: 30px;
-  background: var(--bg-medium);
-  border: 2px solid var(--bg-light);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  cursor: pointer;
-  user-select: none;
-  padding: 0;
-}
-
-.global-toggle:hover {
-  background: #4a4a4a;
-  border-color: #5a5a5a;
-}
-
-.global-toggle.active {
-  background: #2196f3;
-  border-color: #42a5f5;
-  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
-}
-
-.global-toggle:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.global-label {
-  font-size: 0.5rem;
-  font-weight: bold;
-  color: var(--text-light);
-  text-align: center;
-  line-height: 1;
-}
-
-.global-toggle.active .global-label {
-  color: #000;
-}
+/* ── Screen ──────────────────────────────────────────────────────────────── */
 
 .oled-screen {
+  min-width: 0;
+  min-height: 4.6em;
   background: #000;
-  border: 3px solid var(--bg-medium);
-  border-radius: 8px;
-  padding: 0.75rem;
-  height: 80px;
-  width: 100%;
+  border: 2px solid #26282d;
+  border-radius: 0.5em;
+  padding: 0.3em 0.6em;
   display: flex;
   align-items: center;
   justify-content: center;
-  grid-column: 1 / -1;
   overflow: hidden;
 }
-
 .display-content {
-  color: #fff;
+  width: 100%;
   text-align: center;
-  white-space: nowrap;
   overflow: hidden;
-  max-width: 100%;
 }
-
+/* The device's screen font is proportional, thin and cool white. Spaces are
+   kept, so text a DAW pads to a steady width stays put, and digits are all one
+   width, as a pixel font's are; a line too long for the screen is cut, never
+   widening it. One block per line, nothing between them */
 .mode-text {
-  font-size: 0.9rem;
-  font-weight: bold;
-  white-space: nowrap;
+  display: block;
+  font: 500 1.02em/1.2 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  color: #d8e3ff;
+  text-shadow: 0 0 4px rgba(170, 200, 255, 0.45);
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.keyboard-icon {
-  font-size: 1.5rem;
-  margin-top: 0.25rem;
-}
+/* ── Knobs ───────────────────────────────────────────────────────────────── */
 
-/* 8-column grids */
-.knob-group,
-.pads-grid {
+.knobs {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  position: relative;
+  column-gap: var(--gap);
+  align-items: end;
 }
-
-.knobs-section {
-  flex-shrink: 0;
-}
-
-.knob-group {
-  gap: 0.75rem;
-}
-
-.pads-grid {
-  gap: 0.4rem;
-  grid-auto-rows: 1fr;
-  flex: 1;
-  height: 100%;
-}
-
 .knob {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  cursor: ns-resize;
+  gap: 0.25em;
+  min-width: 0;
   user-select: none;
 }
-
+/* An endless encoder: the cap turns with every step it sends (Knobs.ts sets
+   --turn); drag up or right to turn it up, the wheel or the arrow keys too */
 .knob-visual {
-  width: 45px;
-  height: 45px;
-  background: radial-gradient(circle at 30% 30%, #555, #222);
+  --turn: 0deg;
+  width: min(62%, 3.6em);
+  aspect-ratio: 1;
   border-radius: 50%;
-  border: 3px solid var(--bg-medium);
+  background: radial-gradient(circle at 35% 30%, #4a4c52, #1d1e21 70%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   position: relative;
-  cursor: pointer;
-  transition: transform 0.2s;
+  cursor: ns-resize;
+  touch-action: none;
+  outline: none;
+  transform: rotate(var(--turn));
 }
-
-.knob-visual:hover {
-  transform: scale(1.1);
-}
-
 .knob-visual::after {
   content: '';
   position: absolute;
-  top: 6px;
+  top: 9%;
   left: 50%;
-  width: 2px;
-  height: 12px;
-  background: var(--text-light);
-  border-radius: 2px;
-  transform-origin: center 16px;
-  transform: translateX(-50%);
+  width: 9%;
+  height: 30%;
+  margin-left: -4.5%;
+  border-radius: 999px;
+  background: #e8eaee;
 }
+.knob-visual:hover, .knob.turning .knob-visual {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 2px #ffffff33;
+}
+.knob-visual:focus-visible { box-shadow: 0 0 0 3px #7aa7ff; }
 
-/* Labels */
-.label,
-.encoder-label,
-.pad-mode-label {
+.label {
   color: var(--text-dim);
-  font-size: 0.65rem;
+  font-size: 0.72em;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.encoder-label,
-.pad-mode-label {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
+/* ── Pads ────────────────────────────────────────────────────────────────── */
 
-.encoder-label {
-  top: -1.2rem;
-}
-
-.pad-mode-label {
-  bottom: -2rem;
-  font-size: 0.85rem;
-}
-
-.pad-mode-label::before,
-.pad-mode-label::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 200px;
-  height: 1px;
-  background: var(--bg-medium);
-}
-
-.pad-mode-label::before {
-  right: 100%;
-  margin-right: 1rem;
-}
-
-.pad-mode-label::after {
-  left: 100%;
-  margin-left: 1rem;
+.pads-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  /* Room above and below for the mode names printed on the panel */
+  gap: 1.35em var(--gap);
+  padding: 1.35em 0;
+  isolation: isolate;
 }
 
 .pad {
+  --led: transparent;
+  aspect-ratio: 1;
+  width: 100%;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.5em;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
-  background: var(--pad-cyan);
-  color: rgba(0, 0, 0, 0.6);
-  font-weight: 600;
+  touch-action: none;
+  /* Frosted silicone over an unlit LED */
+  background: linear-gradient(180deg, #3a3e46 0%, #2c3037 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -2px 4px rgba(0, 0, 0, 0.35);
+  color: transparent;
+  transition: transform 0.12s, filter 0.12s;
 }
 
-.pad:hover {
-  transform: scale(1.05);
-  filter: brightness(1.2);
+/* Lit: the LED's colour diffused through the pad, with a bloom on the panel
+   around it. No white in the core: a dim LED stays a dim colour */
+.pad.lit {
+  background: radial-gradient(circle at 50% 45%,
+    var(--led) 0%,
+    var(--led) 50%,
+    color-mix(in srgb, var(--led) 72%, black) 100%);
+  box-shadow: inset 0 0 8px color-mix(in srgb, var(--led) 60%, transparent), 0 0 10px 1px color-mix(in srgb, var(--led) 65%, transparent);
 }
-
-.pad:active,
-.pad-active {
-  transform: scale(0.95);
-  filter: brightness(1.5);
-  box-shadow: 0 0 20px rgba(0, 206, 209, 0.8);
+.pad.lit::after {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  border-radius: 25%;
+  background: var(--led);
+  filter: blur(14px);
+  opacity: 0.45;
+  z-index: -1;
+  pointer-events: none;
 }
+.pad:hover { filter: brightness(1.12); }
+.pad:active, .pad-active { transform: scale(0.96); filter: brightness(1.25); }
 
+/* The mode each pad selects with Shift, printed on the panel: above the top
+   row, below the bottom one — never on the pad itself */
 .pad-label {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  right: 0.5rem;
+  left: -0.3em;
+  right: -0.3em;
   text-align: center;
-  font-size: 0.65rem;
-}
-
-/* Branding */
-.branding {
+  font-size: 0.68em;
   color: var(--text-dim);
-  font-size: 1rem;
-  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.pads-grid .pad:nth-child(-n + 8) .pad-label { bottom: calc(100% + 0.35em); }
+.pads-grid .pad:nth-child(n + 9) .pad-label { top: calc(100% + 0.35em); }
+
+/* Palette colours sent on channel 2 (flash) and 3 (pulse) */
+.pad-flash { animation: pad-flash 0.5s steps(1) infinite; }
+.pad-pulse { animation: pad-pulse 1s ease-in-out infinite; }
+@keyframes pad-flash { 50% { filter: brightness(0.25); } }
+@keyframes pad-pulse { 50% { filter: brightness(0.3); } }
+
+/* A finger held on a button is a press, not the start of a scroll or zoom:
+   without this the browser cancels it, and ▶ held for a combo lets go */
+.btn, .pad { touch-action: none; }
+
+.branding {
+  align-self: end;
+  color: var(--text-dim);
+  font-weight: 700;
   letter-spacing: 0.3em;
-  text-align: left;
-  grid-column: 1 / -1;
-  margin-top: 0.5rem;
+  font-size: 0.95em;
 }
 
-/* Keyboard */
-#keyboard-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--bg-dark);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-}
+/* ── Keybed: as wide as the controller, as on the device ─────────────────── */
+
+#keyboard-section { width: 100%; }
 
 .keyboard {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 2px;
-  height: 200px;
+  width: 100%;
+  height: clamp(90px, 17cqi, 230px);
   position: relative;
 }
-
 .key {
   position: relative;
   cursor: pointer;
-  transition: all 0.05s;
   user-select: none;
-  border-radius: 4px 4px 0 0;
+  touch-action: none;
+  transition: background 0.05s;
 }
-
 .white-key {
-  width: 40px;
-  height: 180px;
-  background: linear-gradient(180deg, #e8e8e8 0%, #fff 100%);
-  border: 2px solid var(--bg-medium);
+  flex: 1 1 0;
+  min-width: 0;
+  background: linear-gradient(180deg, #e9e9e9 0%, #fff 100%);
+  border: 1px solid #1b1c1f;
+  border-radius: 0 0 0.35em 0.35em;
   z-index: 1;
 }
-
-.white-key:hover {
-  background: linear-gradient(180deg, #d8d8d8 0%, #f0f0f0 100%);
-}
-
-.white-key.active {
-  background: linear-gradient(180deg, #6020c0 0%, #8338ec 100%);
-  box-shadow: 0 0 20px rgba(131, 56, 236, 0.8);
-  transform: translateY(-2px);
-}
-
+.white-key:hover { background: linear-gradient(180deg, #dcdcdc 0%, #f2f2f2 100%); }
+.white-key.active { background: linear-gradient(180deg, #6020c0 0%, #8338ec 100%); }
+/* 15 white keys: a black key is ~60% of one, centred on the line between two */
 .black-key {
-  width: 28px;
-  height: 110px;
-  background: linear-gradient(180deg, #1a1a2a 0%, #2a2a3e 100%);
-  border: 2px solid #000;
-  margin-left: -15px;
-  margin-right: -15px;
+  flex: 0 0 4%;
+  height: 62%;
+  margin: 0 -2%;
+  background: linear-gradient(180deg, #111 0%, #2a2a2e 100%);
+  border: 1px solid #000;
+  border-radius: 0 0 0.3em 0.3em;
   z-index: 2;
 }
-
-.black-key:hover {
-  background: linear-gradient(180deg, #2a2a3a 0%, #3a3a4e 100%);
-}
-
-.black-key.active {
-  background: linear-gradient(180deg, #d0005a 0%, #ff006e 100%);
-  box-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
-  transform: translateY(-2px);
-}
-
-/* Responsive scaling */
-@media (max-width: 1400px) {
-  .keyboard-container {
-    font-size: 0.95rem;
-    gap: 0.75rem;
-  }
-}
-
-@media (max-width: 1200px) {
-  .keyboard-container {
-    font-size: 0.85rem;
-    gap: 0.6rem;
-    padding: 1rem;
-  }
-  .knob-visual {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 900px) {
-  .keyboard-container {
-    font-size: 0.75rem;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    grid-template-rows: minmax(250px, 1fr) auto;
-  }
-  .knob-visual {
-    width: 35px;
-    height: 35px;
-  }
-  .wheel-pad {
-    width: 40px;
-  }
-}
-
-@media (max-width: 600px) {
-  .keyboard-container {
-    font-size: 0.65rem;
-    gap: 0.4rem;
-    padding: 0.5rem;
-    grid-template-rows: minmax(200px, 1fr) auto;
-  }
-  .knob-visual {
-    width: 30px;
-    height: 30px;
-  }
-  .wheel-pad {
-    width: 35px;
-  }
-}
+.black-key:hover { background: linear-gradient(180deg, #222 0%, #3a3a3e 100%); }
+.black-key.active { background: linear-gradient(180deg, #d0005a 0%, #ff006e 100%); }

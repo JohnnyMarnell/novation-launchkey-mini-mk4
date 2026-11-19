@@ -21,9 +21,9 @@ class App {
     this.midi = new MidiInterface();
 
     // Verify the keyboard container exists
-    const container = document.querySelector('.keyboard-container');
+    const container = document.querySelector('.device');
     if (!container) {
-      throw new Error('Keyboard container not found');
+      throw new Error('.device not found');
     }
 
     // Initialize components - they now find their own DOM elements
@@ -44,6 +44,9 @@ class App {
     // Wire up OLED updates
     this.midi.onOledUpdate((lines, isPersistent) => {
       oled.updateDisplay(lines, isPersistent);
+    });
+    this.midi.addListener(event => {
+      if (event.type === 'oled-cancel' && event.target === 0x21) oled.cancelTemporary();
     });
 
     // Setup global keyboard listener toggle
