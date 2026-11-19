@@ -6,153 +6,148 @@
   <title>Novation Launchkey Mini MK4 Emulator</title>
 </head>
 <body>
-  <div class="main-wrapper">
-  <div class="keyboard-container">
-    <!-- Column 1: Pitch/Mod Wheels -->
-    <div class="wheels-section">
+  <div class="device">
+  <div class="controller">
+    <!-- Laid out as the Mini MK4 is, left to right (style.css, "Layout") -->
+    <div class="strips">
       <div class="wheel">
         <div class="wheel-pad" id="pitch-strip"></div>
         <span class="label">Pitch</span>
       </div>
       <div class="wheel">
         <div class="wheel-pad" id="mod-strip"></div>
-        <span class="label">Modulation</span>
+        <span class="label" title="Modulation">Mod</span>
       </div>
-      <button class="global-toggle" id="global-toggle" title="Global Keyboard Listener">
-        <span class="global-label">GLOBAL</span>
+    </div>
+
+    <div class="oled-screen" id="oled-screen">
+      <div class="display-content">
+        <span class="mode-text">C Minor</span>
+      </div>
+    </div>
+
+    <div class="btn-block">
+      <button class="btn" id="shift-btn">Shift</button>
+      <button class="btn" id="settings-btn">Settings</button>
+      <button class="btn btn-play" id="play-btn" aria-label="Play">▶</button>
+      <button class="btn btn-record" id="record-btn" aria-label="Record">⬤</button>
+      <button class="btn" id="oct-minus-btn">Oct −</button>
+      <button class="btn" id="oct-plus-btn">Oct +</button>
+    </div>
+
+    <!-- Where the device has Arp and Scale: this emulator's own two toggles -->
+    <div class="extras">
+      <button class="btn global-toggle" id="global-toggle" title="Global keyboard listener">Global</button>
+      <button class="btn sustain-indicator" id="sustain-indicator" title="Sustain (or hold any numpad key)">Sus</button>
+    </div>
+
+    <div class="track">
+      <button class="btn" id="up-btn" aria-label="Track up">▲</button>
+      <button class="btn" id="down-btn" aria-label="Track down">▼</button>
+    </div>
+
+    <div class="knobs" id="knobs-container">
+        <div class="knob" data-knob-index="0">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 1"></div>
+          <span class="label">K1</span>
+        </div>
+        <div class="knob" data-knob-index="1">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 2"></div>
+          <span class="label">K2</span>
+        </div>
+        <div class="knob" data-knob-index="2">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 3"></div>
+          <span class="label">K3</span>
+        </div>
+        <div class="knob" data-knob-index="3">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 4"></div>
+          <span class="label">K4</span>
+        </div>
+        <div class="knob" data-knob-index="4">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 5"></div>
+          <span class="label">K5</span>
+        </div>
+        <div class="knob" data-knob-index="5">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 6"></div>
+          <span class="label">K6</span>
+        </div>
+        <div class="knob" data-knob-index="6">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 7"></div>
+          <span class="label">K7</span>
+        </div>
+        <div class="knob" data-knob-index="7">
+          <div class="knob-visual" tabindex="0" role="slider" aria-label="Encoder 8"></div>
+          <span class="label">K8</span>
+        </div>
+    </div>
+
+    <div class="pads-grid">
+      <!-- Row 1 -->
+      <button class="pad">
+        <span class="pad-label">Plug-in</span>
       </button>
-      <div class="sustain-indicator" id="sustain-indicator">
-        <span class="sus-label">SUS</span>
-      </div>
+      <button class="pad">
+        <span class="pad-label">Mixer</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Sends</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Transport</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 1</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 2</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 3</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 4</span>
+      </button>
+
+      <!-- Row 2 -->
+      <button class="pad">
+        <span class="pad-label">DAW</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Drum</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">User Chord</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Chord Map</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 1</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 2</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 3</span>
+      </button>
+      <button class="pad">
+        <span class="pad-label">Custom 4</span>
+      </button>
     </div>
 
-    <!-- Column 2-3: OLED Display Area (wider, merged with mode buttons) -->
-    <div class="display-area">
-      <div class="oled-screen" id="oled-screen">
-        <div class="display-content">
-          <span class="mode-text">C Minor</span>
-          <div class="keyboard-icon">🎹</div>
-        </div>
-      </div>
-      <button class="btn btn-small" id="shift-btn">Shift</button>
-      <button class="btn btn-small" id="settings-btn">Settings</button>
-      <button class="btn btn-icon btn-play" id="play-btn">▶</button>
-      <button class="btn btn-icon btn-record" id="record-btn">⬤</button>
-      <button class="btn btn-small" id="oct-minus-btn">Oct -</button>
-      <button class="btn btn-small" id="oct-plus-btn">Oct +</button>
-      <button class="btn nav-btn" id="up-btn">▲</button>
-      <button class="btn nav-btn" id="down-btn">▼</button>
+    <div class="nav-top">
+      <button class="btn" id="nav-up-btn" aria-label="Up">▲</button>
+      <button class="btn" id="nav-down-btn" aria-label="Down">▼</button>
     </div>
 
-    <!-- Column 4: Knobs + Pads -->
-    <div class="main-content">
-      <!-- Knobs -->
-      <div class="knobs-section">
-        <div class="knob-group" id="knobs-container">
-          <div class="knob" data-knob-index="0">
-            <div class="knob-visual"></div>
-            <span class="label">K1</span>
-          </div>
-          <div class="knob" data-knob-index="1">
-            <div class="knob-visual"></div>
-            <span class="label">K2</span>
-          </div>
-          <div class="knob" data-knob-index="2">
-            <div class="knob-visual"></div>
-            <span class="label">K3</span>
-          </div>
-          <div class="knob" data-knob-index="3">
-            <div class="knob-visual"></div>
-            <span class="label">K4</span>
-          </div>
-          <div class="knob" data-knob-index="4">
-            <div class="knob-visual"></div>
-            <span class="label">K5</span>
-          </div>
-          <div class="knob" data-knob-index="5">
-            <div class="knob-visual"></div>
-            <span class="label">K6</span>
-          </div>
-          <div class="knob" data-knob-index="6">
-            <div class="knob-visual"></div>
-            <span class="label">K7</span>
-          </div>
-          <div class="knob" data-knob-index="7">
-            <div class="knob-visual"></div>
-            <span class="label">K8</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pads -->
-      <div class="pads-grid">
-        <!-- Row 1 -->
-        <button class="pad">
-          <span class="pad-label">Plug-in</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Mixer</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Sends</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Transport</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 1</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 2</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 3</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 4</span>
-        </button>
-
-        <!-- Row 2 -->
-        <button class="pad">
-          <span class="pad-label">DAW</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Drum</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">User Chord</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Chord Map</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 1</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 2</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 3</span>
-        </button>
-        <button class="pad">
-          <span class="pad-label">Custom 4</span>
-        </button>
-      </div>
+    <div class="nav-bottom">
+      <button class="btn" id="right-btn" aria-label="Right (shift)">▶</button>
+      <button class="btn" id="func-btn">Func</button>
     </div>
 
-    <!-- Column 5: Right Navigation -->
-    <div class="right-nav">
-      <button class="btn nav-btn" id="nav-up-btn">▲</button>
-      <button class="btn nav-btn" id="nav-down-btn">▼</button>
-      <button class="btn nav-btn" id="right-btn">▶</button>
-      <button class="btn nav-btn" id="func-btn">Func</button>
-    </div>
-
-    <!-- Branding -->
     <div class="branding">LAUNCHKEY</div>
   </div>
 
-  <!-- Keyboard section (placed to the right of the main controller) -->
   <div id="keyboard-section"></div>
   </div>
 

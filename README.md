@@ -20,6 +20,16 @@ bun run start
 
 ## Controls
 
+- **Knobs** are endless encoders: drag up (or right) to turn up, down (or left) to turn
+  down — never round in a circle. Shift drags at a quarter of the speed; the mouse
+  wheel, a trackpad swipe and the arrow keys (when a knob is focused) work too. Fingers
+  work the same way, and a knob drag never scrolls the page.
+- **Buttons** take a mouse or a finger, and two fingers at once (hold ▶ and tap Func).
+  Keys: `a` play, `s` record, `f` Func, `→` is ▶, `↑`/`↓` the small arrows, `z x c v /` pads.
+- **Global** and **Sus** sit where the device has Arp and Scale.
+- The layout follows the window: the Mini MK4's own arrangement when there is width for
+  it, the knobs and pads across the whole width on a narrow screen held upright.
+
 Currently coded for when the keyboard is in DAW and Transport modes
 (thus the maximum hacktion and customizaishe opportunez).
 

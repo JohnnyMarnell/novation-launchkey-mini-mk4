@@ -21,9 +21,9 @@ class App {
     this.midi = new MidiInterface();
 
     // Verify the keyboard container exists
-    const container = document.querySelector('.keyboard-container');
+    const container = document.querySelector('.device');
     if (!container) {
-      throw new Error('Keyboard container not found');
+      throw new Error('.device not found');
     }
 
     // Initialize components - they now find their own DOM elements

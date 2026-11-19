@@ -1,123 +1,115 @@
 import MidiInterface from '../MidiInterface';
 
+// The eight encoders. They are endless on the device, sending relative steps
+// (Transport mode: CC 85-92 on channel 16, 64 ± the step size), so a knob here
+// is a dial you push, not a value you set:
+//
+//   drag      up or right turns it up, down or left down — never round in a
+//             circle, which is fiddly with a mouse and worse with a finger.
+//             Pointer-captured, so the drag keeps going outside the knob and a
+//             touch never scrolls the page. Shift: a quarter of the speed.
+//   wheel     a mouse wheel or a two-finger trackpad swipe
+//   keys      ↑ → one step up, ↓ ← one down, PgUp / PgDn four, when focused
+//
+// Steps are gathered and sent once a frame, as the device sends them: a size of
+// 1, 2 or 4 a message (65/66/68 up, 63/62/60 down), so a fast drag arrives
+// accelerated and a slow one a step at a time. The cap turns with every step.
+
+const STEP_PX = 6;
+const WHEEL_PX = 50;   // a mouse-wheel notch is 100 px in Chromium: two steps; a trackpad adds up
+const DEG_PER_STEP = 9;
+const SIZES = [4, 2, 1];
+
 export class Knobs {
-  private midi: MidiInterface;
   private readonly ccMixer = 21;
   private readonly ccTransport = 85;
-  private knobChannel = 15;
-  private knobMode: 'mixer' | 'transport' = 'transport';
+  private readonly knobChannel = 15;
+  private readonly knobMode: 'mixer' | 'transport' = 'transport';
 
-  constructor(midi: MidiInterface) {
-    this.midi = midi;
-    this.initializeKnobs();
-  }
-
-  private initializeKnobs() {
-    // Find all existing knob elements in the DOM
-    const knobElements = document.querySelectorAll('.knob[data-knob-index]');
-
-    knobElements.forEach((knobWrapper) => {
-      const index = parseInt(knobWrapper.getAttribute('data-knob-index') || '0');
-      if (!(index >= 0)) return;
-
-      const knobVisual = knobWrapper.querySelector('.knob-visual') as HTMLElement;
-      if (!knobVisual) return;
-
-      let isDragging = false;
-      let startY = 0;
-      let currentValue = 0;
-
-      const handleMove = (clientY: number) => {
-        if (!isDragging) return;
-
-        const delta = startY - clientY;
-        const ccNum = (this.knobMode === 'mixer' ? this.ccMixer : this.ccTransport) + index;
-
-        if (this.knobMode === 'mixer') {
-          // Mixer mode: direct CC value from visual position
-          currentValue = Math.max(0, Math.min(127, currentValue + delta));
-          this.updateKnob(knobVisual, currentValue);
-          this.midi.sendCC(ccNum, Math.round(currentValue), this.knobChannel);
-          console.log(`Knob ${index + 1} (CC${ccNum}) [MIXER]: ${Math.round(currentValue)}`);
-        } else {
-          // Transport/Relative mode: send relative encoder values (64 = center)
-          // delta > 0 = dragging up (increase), delta < 0 = dragging down (decrease)
-          const absDelta = Math.abs(delta);
-          let relativeValue: number;
-
-          if (absDelta === 0) {
-            return; // No movement, don't send anything
-          } else if (absDelta === 1) {
-            relativeValue = delta > 0 ? 65 : 63; // +1 or -1
-          } else if (absDelta <= 3) {
-            relativeValue = delta > 0 ? 66 : 62; // +2 or -2
-          } else if (absDelta <= 6) {
-            relativeValue = delta > 0 ? 67 : 61; // +3 or -3
-          } else {
-            // Large movement: max out at +/-7
-            relativeValue = delta > 0 ? 71 : 57; // +7 or -7
-          }
-
-          this.midi.sendCC(ccNum, relativeValue, this.knobChannel);
-          console.log(`Knob ${index + 1} (CC${ccNum}) [TRANSPORT]: ${relativeValue} (delta: ${delta})`);
-        }
-
-        startY = clientY;
-      };
-
-      knobVisual.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startY = e.clientY;
-        if (this.knobMode === 'mixer') {
-          currentValue = this.getValueFromKnobVisual(knobVisual);
-        }
-        e.preventDefault();
-      });
-
-      document.addEventListener('mousemove', (e) => handleMove(e.clientY));
-
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
-
-      // Touch support
-      knobVisual.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        startY = e.touches[0].clientY;
-        if (this.knobMode === 'mixer') {
-          currentValue = this.getValueFromKnobVisual(knobVisual);
-        }
-        e.preventDefault();
-      });
-
-      document.addEventListener('touchmove', (e) => {
-        if (isDragging && e.touches.length > 0) {
-          handleMove(e.touches[0].clientY);
-        }
-      });
-
-      document.addEventListener('touchend', () => {
-        isDragging = false;
-      });
+  constructor(private midi: MidiInterface) {
+    document.querySelectorAll<HTMLElement>('.knob[data-knob-index]').forEach(el => {
+      const index = Number(el.dataset.knobIndex);
+      const cap = el.querySelector<HTMLElement>('.knob-visual');
+      if (cap && index >= 0) this.wire(el, cap, index);
     });
   }
 
-  private getValueFromKnobVisual(knobVisual: HTMLElement): number {
-    // Extract the rotation value from the transform style
-    const transform = knobVisual.style.transform;
-    const rotationMatch = transform.match(/rotate\(([^d]+)deg\)/);
-    if (rotationMatch) {
-      const rotation = parseFloat(rotationMatch[1]);
-      // Reverse engineer: rotation = (value / 127) * 270 - 135
-      const value = ((rotation + 135) / 270) * 127;
-      return Math.round(Math.max(0, Math.min(127, value)));
-    }
-    return 0;
-  }
+  private wire(knob: HTMLElement, cap: HTMLElement, index: number) {
+    let pending = 0;        // whole steps not sent yet
+    let carry = 0;          // drag distance not yet a whole step
+    let turn = 0;           // the cap's angle
+    let value = 64;         // mixer mode only: an absolute 0-127
+    let frame = 0;
+    let last: { x: number; y: number } | null = null;
 
-  private updateKnob(knobVisual: HTMLElement, value: number) {
-    const rotation = (value / 127) * 270 - 135; // -135 to +135 degrees
-    // Rotate the ::after pseudo-element by rotating the entire knob visual
-    knobVisual.style.transform = `rotate(${rotation}deg)`;
+    const flush = () => {
+      frame = 0;
+      let n = pending;
+      pending = 0;
+      if (!n) return;
+      turn += n * DEG_PER_STEP;
+      cap.style.setProperty('--turn', `${turn}deg`);
+      if (this.knobMode === 'mixer') {
+        value = Math.max(0, Math.min(127, value + n));
+        this.midi.sendCC(this.ccMixer + index, value, this.knobChannel);
+        cap.setAttribute('aria-valuenow', String(value));
+        return;
+      }
+      const sign = Math.sign(n);
+      for (n = Math.abs(n); n > 0;) {
+        const size = SIZES.find(s => s <= n)!;
+        this.midi.sendCC(this.ccTransport + index, 64 + sign * size, this.knobChannel);
+        n -= size;
+      }
+    };
+    const steps = (n: number) => {
+      if (!n) return;
+      pending += n;
+      frame ||= requestAnimationFrame(flush);
+    };
+
+    cap.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      cap.setPointerCapture(e.pointerId);
+      cap.focus({ preventScroll: true });
+      last = { x: e.clientX, y: e.clientY };
+      carry = 0;
+      knob.classList.add('turning');
+    });
+    cap.addEventListener('pointermove', e => {
+      if (!last || !cap.hasPointerCapture(e.pointerId)) return;
+      const moved = (last.y - e.clientY) + (e.clientX - last.x);
+      last = { x: e.clientX, y: e.clientY };
+      carry += moved * (e.shiftKey ? 0.25 : 1);
+      const whole = Math.trunc(carry / STEP_PX);
+      carry -= whole * STEP_PX;
+      steps(whole);
+    });
+    const end = () => {
+      last = null;
+      knob.classList.remove('turning');
+    };
+    cap.addEventListener('pointerup', end);
+    cap.addEventListener('pointercancel', end);
+
+    let wheelCarry = 0;
+    cap.addEventListener('wheel', e => {
+      e.preventDefault();
+      // Lines (a mouse wheel's notches) are a step each; pixels (a trackpad) add up
+      const px = e.deltaMode === 1 ? e.deltaY * WHEEL_PX : e.deltaY;
+      wheelCarry -= px * (e.shiftKey ? 0.25 : 1);
+      const whole = Math.trunc(wheelCarry / WHEEL_PX);
+      wheelCarry -= whole * WHEEL_PX;
+      steps(whole);
+    }, { passive: false });
+
+    cap.addEventListener('keydown', e => {
+      const by: Record<string, number> = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 4, PageDown: -4 };
+      if (!(e.key in by)) return;
+      e.preventDefault();
+      e.stopPropagation();   // the arrow keys are buttons elsewhere on the page
+      steps(by[e.key]);
+    });
   }
 }
