@@ -35,6 +35,7 @@ export class Controls {
     'F': 'func',
     'ArrowUp': 'navUp',
     'ArrowDown': 'navDown',
+    'ArrowRight': 'right',
   };
 
   constructor(midi: MidiInterface) {

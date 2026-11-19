@@ -51,11 +51,26 @@ export class OledScreen {
     }
   }
 
+  // The screen's own glyphs (Programmer's Reference, "Setting text"): empty box, filled box, flat, heart
+  private static readonly GLYPHS: Record<string, string> = {
+    '\x1b': '\u2610', '\x1c': '\u2588', '\x1d': '\u266d', '\x1e': '\u2665',
+    '&': '&amp;', '<': '&lt;', '>': '&gt;',
+  };
+
   private formatLines(lines: string[]): string {
-    // Format lines as HTML similar to the original structure
+    const text = (line: string) => [...(line || '')].map(ch => OledScreen.GLYPHS[ch] ?? ch).join('');
     return `<div class="display-content">${lines.map(line =>
-      `<span class="mode-text">${line || ''}</span>`
+      `<span class="mode-text">${text(line)}</span>`
     ).join('<br>')}</div>`;
+  }
+
+  /** The DAW cancelled the temporary display: back to the stationary one now */
+  cancelTemporary() {
+    if (this.tempTimer !== null) {
+      clearTimeout(this.tempTimer);
+      this.tempTimer = null;
+    }
+    this.render(this.persistentContent);
   }
 
   private render(content: string) {

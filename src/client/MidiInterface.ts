@@ -61,12 +61,12 @@ class MidiInterface {
     }
   }
 
-  sendNoteOn(note: number, velocity: number = 100, channel: number = 0) {
-    this.send({ type: 'note-on', note, velocity, channel });
+  sendNoteOn(note: number, velocity: number = 100, channel: number = 0, port: 'daw' | 'midi' = 'midi') {
+    this.send({ type: 'note-on', note, velocity, channel, port });
   }
 
-  sendNoteOff(note: number, channel: number = 0) {
-    this.send({ type: 'note-off', note, channel });
+  sendNoteOff(note: number, channel: number = 0, port: 'daw' | 'midi' = 'midi') {
+    this.send({ type: 'note-off', note, channel, port });
   }
 
   sendCC(ccNumber: number, value: number, channel: number = 0) {

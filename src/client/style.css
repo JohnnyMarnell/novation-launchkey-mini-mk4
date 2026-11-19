@@ -377,9 +377,10 @@ body {
   border-radius: 8px;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
-  background: var(--pad-cyan);
-  color: rgba(0, 0, 0, 0.6);
+  /* An unlit LED is dark; the DAW lights it (Pads.ts). Short, so the DAW's own fades lead */
+  transition: background-color 60ms linear, box-shadow 60ms linear, transform 0.2s, filter 0.2s;
+  background: #2a2e35;
+  color: rgba(255, 255, 255, 0.55);
   font-weight: 600;
 }
 
@@ -532,3 +533,9 @@ body {
     width: 35px;
   }
 }
+
+/* Palette colours sent on channel 2 (flash) and 3 (pulse) */
+.pad-flash { animation: pad-flash 0.5s steps(1) infinite; }
+.pad-pulse { animation: pad-pulse 1s ease-in-out infinite; }
+@keyframes pad-flash { 50% { filter: brightness(0.25); } }
+@keyframes pad-pulse { 50% { filter: brightness(0.3); } }

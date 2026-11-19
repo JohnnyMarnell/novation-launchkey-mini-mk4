@@ -45,6 +45,9 @@ class App {
     this.midi.onOledUpdate((lines, isPersistent) => {
       oled.updateDisplay(lines, isPersistent);
     });
+    this.midi.addListener(event => {
+      if (event.type === 'oled-cancel' && event.target === 0x21) oled.cancelTemporary();
+    });
 
     // Setup global keyboard listener toggle
     this.setupGlobalKeyboardToggle();

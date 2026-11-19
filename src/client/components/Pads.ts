@@ -1,4 +1,5 @@
 import MidiInterface from '../MidiInterface';
+import { PALETTE } from '../palette';
 
 export class Pads {
   private midi: MidiInterface;
@@ -41,29 +42,31 @@ export class Pads {
     this.initializePads();
     this.setupKeyboardListeners();
     
-    const colors: any = {60: 'pink', 72: 'pink', 78: 'teal'};
     this.midi.addListener((event: any) => {
-      if (event.type === 'midi') {
-        const {midiType, channel, data, value} = event;
-
-        // Only respond to channel 9 (drums channel)
-        if (channel !== 9) {
-          return;
-        }
-
-        let index = this.padNotes.indexOf(data);
-
-        // If note not in pad range, map it using modulo
-        if (index < 0 && midiType === 0x90) {
-          index = data % this.numPads;
-        }
-
-        if (midiType === 0x90 && index >= 0 && index < this.numPads) {
-          this.pads[index].style.backgroundColor = colors[value] || 'grey'
-          console.log(`[MIDI Device ch${channel}] Pad ${index} (note ${data}) lit`);
-        }
+      // The DAW lighting a pad: a palette index as velocity on channel 1 (static),
+      // 2 (flashing) or 3 (pulsing) — Programmer's Reference, "Colouring the surface"
+      if (event.type === 'midi' && event.source === 'daw' && event.midiType === 0x90 && event.channel <= 2) {
+        const index = this.padNotes.indexOf(event.data);
+        if (index >= 0) this.light(index, PALETTE[event.value] ?? PALETTE[0], ['', 'flash', 'pulse'][event.channel]);
+        return;
       }
-    })
+      // ...or any colour at all: SysEx 01 43 <pad> R G B
+      if (event.type === 'pad-rgb') {
+        const index = this.padNotes.indexOf(event.note);
+        if (index >= 0) this.light(index, `rgb(${event.rgb.join(',')})`, '');
+      }
+    });
+  }
+
+  private light(index: number, colour: string, mode: string) {
+    const pad = this.pads[index];
+    if (!pad) return;
+    const dark = colour === PALETTE[0] || colour === 'rgb(0,0,0)';
+    pad.style.backgroundColor = dark ? '' : colour;
+    pad.style.boxShadow = dark ? '' : `0 0 14px 2px ${colour}`;
+    pad.dataset.led = dark ? '' : colour;
+    pad.classList.toggle('pad-flash', mode === 'flash');
+    pad.classList.toggle('pad-pulse', mode === 'pulse');
   }
 
   private initializePads() {
@@ -153,7 +156,7 @@ export class Pads {
         pad.classList.add('pad-active');
 
         // Send MIDI note on with full velocity
-        this.midi.sendNoteOn(note, 127, this.padChannel);
+        this.midi.sendNoteOn(note, 127, this.padChannel, 'daw');
         console.log(`Pad ${padIndex} pressed - Note: ${note} on channel ${this.padChannel + 1}`);
       }
     }
@@ -169,7 +172,7 @@ export class Pads {
         pad.classList.remove('pad-active');
 
         // Send MIDI note off
-        this.midi.sendNoteOff(note, this.padChannel);
+        this.midi.sendNoteOff(note, this.padChannel, 'daw');
         console.log(`Pad ${padIndex} released - Note: ${note} off on channel ${this.padChannel + 1}`);
       }
     }
@@ -179,7 +182,7 @@ export class Pads {
   public triggerPad(padIndex: number, velocity: number = 127) {
     if (padIndex >= 0 && padIndex < this.numPads) {
       const note = this.padNotes[padIndex];
-      this.midi.sendNoteOn(note, velocity, this.padChannel);
+      this.midi.sendNoteOn(note, velocity, this.padChannel, 'daw');
 
       // Visual feedback
       const pad = this.pads[padIndex];
@@ -187,7 +190,7 @@ export class Pads {
         pad.classList.add('pad-active');
         setTimeout(() => {
           pad.classList.remove('pad-active');
-          this.midi.sendNoteOff(note, this.padChannel);
+          this.midi.sendNoteOff(note, this.padChannel, 'daw');
         }, 100);
       }
     }
